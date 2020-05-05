@@ -1,0 +1,37 @@
+name: Client CI
+
+on:
+  push:
+    paths:
+      - client/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build client
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - working-directory: client
+        run: |
+          npm ci
+          npm run build
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Run ESLint
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - working-directory: client
+        run: |
+          npm ci
+          npm run lint

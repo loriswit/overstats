@@ -1,0 +1,37 @@
+name: Server CI
+
+on:
+  push:
+    paths:
+      - server/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build server
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - working-directory: server
+        run: |
+          npm ci
+          npm run build
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Run ESLint
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - working-directory: server
+        run: |
+          npm ci
+          npm run lint
