@@ -1,11 +1,6 @@
-import { arrayProp, getModelForClass, index, modelOptions, prop } from "@typegoose/typegoose"
+import { getModelForClass, index, prop } from "@typegoose/typegoose"
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses"
-import { SeasonSchema } from "./season"
 
-@modelOptions({
-    schemaOptions: { collection: "users" },
-    options: { runSyncIndexes: true }
-})
 @index({ name: 1 }, {
     unique: true,
     collation: {
@@ -13,7 +8,7 @@ import { SeasonSchema } from "./season"
         strength: 2
     }
 })
-export class UserSchema extends TimeStamps {
+export class User extends TimeStamps {
     @prop({
         required: true,
         trim: true
@@ -23,12 +18,13 @@ export class UserSchema extends TimeStamps {
     @prop({ required: true })
     public pass!: string
 
-    @prop({ validate: /[^#s]+#[0-9]{4,}/ })
+    @prop({ validate: /[^#]+#\d{4,}/ })
     public battleTag?: string
 
-    @arrayProp({ items: SeasonSchema })
-    public seasons!: SeasonSchema[]
+    public export() {
+        return { name: this.name, battleTag: this.battleTag }
+    }
 }
 
-const User = getModelForClass(UserSchema)
-export default User
+const UserModel = getModelForClass(User)
+export default UserModel

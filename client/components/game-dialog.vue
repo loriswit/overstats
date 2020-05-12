@@ -3,7 +3,7 @@
     form(@submit.prevent="submit")
       h2(v-if="update") Edit game
       h2(v-else) Add a new game
-      .field
+      .field(v-if="!update")
         label(for="role") Role
         select#role(v-model="role" @change="ranked = rankedRoles[role]" required)
           option(v-for="r in roles" :value="r") {{ r }}
@@ -12,7 +12,7 @@
         label(for="sr") Skill rating
         input#sr(v-model="sr" ref="input" type="number" step="1" max="5000" min="0" required)
 
-      .field(v-else)
+      .field(v-if="needOutcome")
         label(for="outcome") Outcome
         select#outcome(v-model="outcome" required)
           option(v-for="o in outcomes" :value="o") {{ o }}
@@ -27,13 +27,13 @@
         select#balance(v-model="balance" required)
           option(v-for="b in balances" :value="b") {{ b }}
 
-      .field
+      .field(v-if="!update")
         label(for="date") Date
         input#date(v-model="date" type="datetime-local" step="1" required)
 
       .field.submit
         .buttons
-          button.grey(type="button" @click="dialog = false") Close
+          button.grey(type="button" @click="dialog = false") Cancel
           button.red(v-if="update" type="button" @click="remove") Delete
           button(type="submit") Save
 
@@ -134,6 +134,9 @@ export default Vue.extend({
       set (value: boolean) {
         this.type = value ? "Ranked" : "Placement"
       }
+    },
+    needOutcome (): boolean {
+      return !this.ranked || !this.rankedRoles[this.role]
     }
   },
   watch: {
@@ -147,12 +150,13 @@ export default Vue.extend({
           this.map = this.update.map
           this.outcome = this.update.outcome
           this.sr = this.update.sr
-          this.ranked = this.sr !== undefined
+          this.ranked = this.update.ranked
         } else {
           date = new Date()
           this.map = ""
           this.outcome = ""
           this.sr = ""
+          this.balance = "Balanced"
           this.ranked = this.rankedRoles[this.role]
         }
 
@@ -170,21 +174,18 @@ export default Vue.extend({
     submit () {
       const payload = {
         sr: this.ranked ? +this.sr : undefined,
-        outcome: this.ranked ? undefined : this.outcome,
+        outcome: this.needOutcome ? this.outcome : undefined,
         role: this.role,
         map: this.map,
         balance: this.balance,
         date: new Date(this.date)
       }
       this.dialog = false
-      this.$emit("submit", {
-        ranked: this.ranked,
-        payload
-      })
+      this.$emit("submit", payload)
     },
     remove () {
       this.dialog = false
-      this.$emit("delete", this.ranked)
+      this.$emit("delete")
     }
   }
 })

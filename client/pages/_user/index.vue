@@ -1,5 +1,5 @@
 <template lang="pug">
-  player(:player="$route.params.user", season="S21")
+  player(:player="$route.params.user", season="Season 22")
 </template>
 
 <script lang="ts">

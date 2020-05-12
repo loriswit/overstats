@@ -22,7 +22,7 @@
         input.credential#pass-reg(v-model="reg.pass" placeholder="Password" type="password" minlength="6" required)
       .field
         label.hidden(for="tag") BattleTag
-        input.credential#tag(v-model="reg.tag" placeholder="BattleTag™" pattern="[^#\s]+#[0-9]{4,}")
+        input.credential#tag(v-model="reg.tag" placeholder="BattleTag™" pattern="[^#]+#\\d{4,}")
       .field.submit
         p.error {{ reg.error }}
         button(type="submit") Register
@@ -85,13 +85,7 @@ export default Vue.extend({
       }
     },
     async logUser (username: string, password: string) {
-      const data = await this.$axios.$get("/login",
-        {
-          auth: {
-            username,
-            password
-          }
-        })
+      const data = await this.$axios.$get("/login", { auth: { username, password } })
       userStore.login(data)
     }
   },

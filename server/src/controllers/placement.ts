@@ -1,72 +1,67 @@
 import { Context } from "koa"
-import Placement, { PlacementSchema } from "../models/placement"
-import { RankedSchema } from "../models/ranked"
-import { RankSchema } from "../models/rank"
+import PlacementModel, { Placement } from "../models/placement"
+import GameModel from "../models/game"
 
 export default class PlacementController {
 
+    public static async getPlacement(id: string, ctx: Context, next: Function) {
+        ctx.placement = await PlacementModel.findById(id).where({ user: ctx.user }).exec()
+        if (!ctx.placement) {
+            ctx.throw(404, "Placement doesn't exist")
+        }
+
+        return next()
+    }
+
     public static async readAll(ctx: Context) {
-        ctx.body = ctx.season.placements.map((game: PlacementSchema) => game.export())
+        const filter = { user: ctx.user } as Placement
+        if (ctx.request.query.season) {
+            filter.season = ctx.request.query.season
+        }
+
+        const placements = await PlacementModel.find(filter).exec()
+        ctx.body = placements.map((placement: Placement) => placement.export())
     }
 
     public static async create(ctx: Context) {
-        const game = new Placement(ctx.request.body)
-        PlacementController.checkDate(game, ctx)
+        const placement = new PlacementModel(ctx.request.body)
+        placement.user = ctx.user
 
-        ctx.season.placements.push(game)
-        PlacementController.updateRank(game, ctx)
-        await ctx.user.save()
+        try {
+            await placement.save()
 
-        ctx.body = game.export()
-        ctx.status = 201
+            // update first ranked game outcome
+            const firstRanked = await GameModel.findFirstRanked(placement)
+            await firstRanked?.save()
+
+            ctx.body = placement.export()
+            ctx.status = 201
+
+        } catch (err) {
+            if (err.name === "MongoError" && err.code === 11000) {
+                ctx.throw(409, "A " + placement.role + " placement rank already exists")
+            } else {
+                throw err
+            }
+        }
+    }
+
+    public static async read(ctx: Context) {
+        ctx.body = ctx.placement.export()
     }
 
     public static async update(ctx: Context) {
-        const game = ctx.season.placements.find((p: PlacementSchema) => p._id == ctx.params.id)
-        if (!game) {
-            ctx.throw(404, "Placement game doesn't exist: " + ctx.params.id)
+        Object.assign(ctx.placement, ctx.request.body)
+        const newSr = ctx.placement.modifiedPaths().includes("sr")
+
+        await ctx.placement.save()
+
+        // if needed, update first ranked game outcome
+        if (newSr) {
+            const firstRanked = await GameModel.findFirstRanked(ctx.placement)
+            await firstRanked?.save()
         }
 
-        Object.assign(game, ctx.request.body)
-        PlacementController.checkDate(game, ctx)
-        PlacementController.updateRank(game, ctx)
-
-        await ctx.user.save()
-        ctx.body = game.export()
-        ctx.status = 200
-    }
-
-    public static async delete(ctx: Context) {
-        const game = ctx.season.placements.find((p: PlacementSchema) => p._id == ctx.params.id)
-        ctx.season.placements.pull(ctx.params.id)
-        PlacementController.updateRank(game, ctx)
-        await ctx.user.save()
-        ctx.status = 200
-    }
-
-    private static checkDate(game: PlacementSchema, ctx: Context) {
-        const ranked = ctx.season.games
-            .filter((r: RankedSchema) => r.role == game.role)
-
-        if (ranked.length) {
-            const maxDate = Math.min(...ranked.map((r: RankedSchema) => r.date.getTime()))
-            if (game.date.getTime() >= maxDate) {
-                ctx.throw(400, "Cannot put a placement game after the first ranked game")
-            }
-        }
-    }
-
-    private static updateRank(game: PlacementSchema, ctx: Context) {
-        const rank = ctx.season.ranks.find((r: RankSchema) => r.role == game.role)
-        if (rank) {
-            const placements = ctx.season.placements
-                .filter((p: PlacementSchema) => p.role == game.role)
-            if (placements.length) {
-                const date = Math.max(...placements.map((p: PlacementSchema) => p.date.getTime()))
-                rank.date = new Date(date + 1)
-            } else {
-                ctx.season.ranks.pull(rank)
-            }
-        }
+        ctx.body = ctx.placement.export()
     }
 }

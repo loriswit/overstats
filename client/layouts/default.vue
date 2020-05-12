@@ -19,7 +19,7 @@
         i.fas.fa-exclamation-triangle
         span Error
       p {{ error.message }}
-      button.red(@click="error.dialog = false") Close
+      button.red(@click="error.dialog = false") Cancel
 </template>
 
 <script lang="ts">

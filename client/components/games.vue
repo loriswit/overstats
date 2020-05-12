@@ -14,16 +14,16 @@
           .role(v-for="role in day")
             table(:class="{ editable }")
               tr(v-for="game in role" @click="editGame(game.id)"
-                :class="{ unbalanced: game.balance !== 'Balanced', rank: game.rank }"
-                :title="game.balance !== 'Balanced' ? game.balance + ' advantage' : false")
+                :class="{ unbalanced: game.balance && game.balance !== 'Balanced', placement: game.placement }"
+                :title="game.balance && game.balance !== 'Balanced' ? game.balance + ' advantage' : false")
 
                 td.time {{ timeOf(game) }}
 
-                template(v-if="game.rank")
-                  td.rank-title(:class="roles[game.role]")
+                template(v-if="game.placement")
+                  td.placement-title(:class="roles[game.role]")
                     icon(v-if="roleQueue" :name="roles[game.role]")
                     span Placement
-                  td.rank-sr(colspan=2) {{ game.sr }}
+                  td.placement-sr(colspan=2) {{ game.sr }}
 
                 template(v-else)
                   td.map
@@ -31,47 +31,37 @@
                     i.balance.fas.fa-smile(v-if="game.balance === 'Allied'")
                     i.balance.fas.fa-frown(v-if="game.balance === 'Enemy'")
 
-                  td.outcome(v-if="game.placement" colspan=2
-                    :class="{ victory: game.outcome === 'Victory', defeat: game.outcome === 'Defeat' }")
+                  td.outcome(v-if="!game.ranked" colspan=2
+                    :class="game.outcome.toLowerCase()")
                     | {{ game.outcome }}
 
                   template(v-else)
                     td.sr {{ game.sr }}
-                    td.no-diff(v-if="game.diff === undefined") —
-                    td.diff(v-else :class="{ victory: game.diff > 0, defeat: game.diff < 0 }")
-                      | {{ (game.diff > 0 ? "+" : "") + game.diff }}
+                    td.diff(:class="game.outcome.toLowerCase()")
+                      template(v-if="game.diff === undefined") —
+                      template(v-else) {{ (game.diff > 0 ? "+" : "") + game.diff }}
 </template>
 
 <script lang="ts">
 import Vue, { PropOptions } from "vue"
 import Icon from "~/components/icon.vue"
 
-interface Game {
-  id: string
-  date: Date
+interface Event {
+  id: string,
+  date: Date,
+  role: Role,
   day: number
-  map: string
-  sr: number
-  diff: number
-  balance: string
-  role: Role
-  rank: boolean
   placement: boolean
-  outcome: string
-}
-
-interface GameData {
-  id: string
-  map: string
-  date: string
-  balance: string
-  role: string
-  sr: number
-  outcome: string
+  diff: number | undefined
+  sr: number | undefined
+  map: string | undefined
+  balance: string | undefined
+  outcome: string | undefined
+  ranked: boolean | undefined
 }
 
 enum Role {
-  Tank, Damage, Support, Global
+  Tank, Damage, Support, Any
 }
 
 export default Vue.extend({
@@ -80,10 +70,10 @@ export default Vue.extend({
     Icon
   },
   props: {
-    data: {
+    events: {
       type: Array,
       required: true
-    } as PropOptions<GameData[]>,
+    } as PropOptions<any[]>,
     roleQueue: {
       type: Boolean,
       required: true
@@ -102,50 +92,42 @@ export default Vue.extend({
   }),
   computed: {
     games () {
-      if (!this.data.length) {
+      if (!this.events.length) {
         return []
       }
 
-      const gameList = [] as Game[]
-      for (const item of this.data) {
-        const game = {} as Game
-        if (item.sr) {
-          game.sr = item.sr
-        }
-
-        game.id = item.id
-        game.map = item.map
-        game.date = new Date(item.date)
+      // parse games
+      const events = [] as Event[]
+      for (const event of this.events) {
+        const game = {} as Event
+        Object.assign(game, event)
+        game.date = new Date(event.date)
         game.day = Math.floor((game.date.getTime() + this.dayShift) / 86400000)
+        game.role = Role[event.role as keyof typeof Role]
+        game.placement = event.outcome === undefined
 
-        game.role = this.roleQueue ? Role[item.role as keyof typeof Role] : Role.Global
-
-        if (!game.rank && item.outcome) {
-          game.placement = true
-          game.outcome = item.outcome
+        if (event.balance) {
+          game.balance = event.balance.split(" ")[0]
         }
 
-        if (item.balance) {
-          game.balance = item.balance.split(" ")[0]
-        } else {
-          game.balance = "Balanced"
-          game.rank = true
-        }
-
-        gameList.push(game)
+        events.push(game)
       }
 
       // sort games by date
-      gameList.sort((a: Game, b: Game) => b.date.getTime() - a.date.getTime())
+      events.sort((a: Event, b: Event) => b.date.getTime() - a.date.getTime())
 
-      // split games by roles and days, and compute diffs
-      const previous = [] as Game[]
-      const days = gameList.reduce((days: Game[][][], game: Game) => {
+      // split games by roles and days
+      const previous = [] as Event[]
+      const days = events.reduce((days: Event[][][], game: Event) => {
         if (!days[game.day]) {
           days[game.day] = [[], [], [], []]
         }
-        if (previous[game.role] && game.sr) {
-          previous[game.role].diff = previous[game.role].sr - game.sr
+        // compute SR difference
+        if (previous[game.role]) {
+          const prev = previous[game.role]
+          if (game.sr && prev.sr) {
+            previous[game.role].diff = prev.sr - game.sr
+          }
         }
         days[game.day][game.role].push(game)
         previous[game.role] = game
@@ -165,24 +147,13 @@ export default Vue.extend({
     }
   },
   methods: {
-    dayOf (game: Game) {
-      const options = {
-        // timeZone: "UTC",
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-      }
+    dayOf (game: Event) {
+      const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" }
       const date = new Date(game.date.getTime() + this.dayShift)
-      return date.toLocaleDateString("en-UK", options)
+      return date.toLocaleDateString("en-GB", options)
     },
-    timeOf (game: Game) {
-      const options = {
-        // timeZone: "UTC",
-        hourCycle: "h23",
-        hour: "numeric",
-        minute: "numeric"
-      }
+    timeOf (game: Event) {
+      const options = { hourCycle: "h23", hour: "numeric", minute: "numeric" }
       return game.date.toLocaleTimeString("en-GB", options)
     },
     editGame (id: string) {
@@ -274,10 +245,10 @@ export default Vue.extend({
       .defeat
         background: #ffc5c5
 
-    &:hover.rank
+    &:hover.placement
       background: #7a808d
 
-      .rank-sr
+      .placement-sr
         background: #5f6878
 
   td
@@ -319,25 +290,14 @@ export default Vue.extend({
     padding-right: 15px
     width: 52px
 
-  .diff, .no-diff
+  .diff
+    font-family: Manrope, sans-serif
     width: 48px
     text-align: center
     font-size: 1.1em
 
-  .diff
-    font-family: Manrope, sans-serif
-    color: #ba7200
-    background: #ffe361
-
-  .no-diff
-    text-align: center
-    background: rgba(0, 0, 0, 0.1)
-    color: grey
-
   .outcome
     font-family: BigNoodleTooOblique, sans-serif
-    color: #ba7200
-    background: #ffe361
     font-size: 1.6em
     text-align: center
     width: 100px
@@ -350,13 +310,17 @@ export default Vue.extend({
     color: #a50000
     background: #ffa4a4
 
-  .rank
+  .draw
+    color: #ba7200
+    background: #ffe883
+
+  .placement
     background: #5b626d
 
     .time
       color: lightgrey
 
-    .rank-title
+    .placement-title
       font-family: BigNoodleTooOblique, sans-serif
       font-size: 1.6em
       color: white
@@ -370,7 +334,7 @@ export default Vue.extend({
         width: 20px
         margin-right: 8px
 
-    .rank-sr
+    .placement-sr
       font-family: BigNoodleTooOblique, sans-serif
       letter-spacing: 1px
       font-size: 1.6em

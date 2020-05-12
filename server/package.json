@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "main": "dist/index.js",
+  "engines": {
+    "node": "^14.2.0"
+  },
   "scripts": {
     "start": "node -r dotenv/config dist/index.js",
     "dev": "tsnd --no-notify --transpileOnly -r dotenv/config src/index.ts",
@@ -12,7 +15,7 @@
   },
   "dependencies": {
     "@koa/cors": "^2.2.3",
-    "@typegoose/typegoose": "^6.4.0",
+    "@typegoose/typegoose": "^7.0.0",
     "basic-auth": "^2.0.1",
     "bcrypt": "^4.0.1",
     "dotenv": "^8.2.0",

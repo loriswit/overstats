@@ -15,7 +15,7 @@ import Vue from "vue"
 import Modal from "~/components/modal.vue"
 
 export default Vue.extend({
-  name: "RankDialog",
+  name: "PlacementDialog",
   components: {
     Modal
   },

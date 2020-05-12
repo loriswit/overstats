@@ -17,11 +17,6 @@ export default {
             {
                 name: "theme-color",
                 content: "#000000"
-            },
-            {
-                hid: "description",
-                name: "description",
-                content: process.env.API_URL_BROWSER
             }
         ]
     },

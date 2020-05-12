@@ -4,31 +4,31 @@
       .player
         img.icon(v-if="icon" :src="icon")
         h1 {{ profile.name }}
-        .battle-tag(v-if="profile.tag")
-          span {{ profile.tag.split("#")[0] }}
-          span.tag {{ "#" + profile.tag.split("#")[1] }}
+        .battle-tag(v-if="profile.battleTag")
+          span {{ profile.battleTag.split("#")[0] }}
+          span.tag {{ "#" + profile.battleTag.split("#")[1] }}
         .count(v-if="!loading") {{ gamesCount }} game{{ gamesCount === 1 ? "" : "s" }}
       .actions
         button(v-if="editable && !loading && roleQueue" @click="addGameDialog = true") add game
         select(v-if="seasons.length > 1" @change="selectSeason")
           option(hidden disabled selected) Season
-          option(v-for="s in seasons" :value="s.key" :selected="season === s.key") {{ s.name }}
+          option(v-for="s in seasons" :value="s.toLowerCase().replace(/ /g, '-')" :selected="season === s") {{ s }}
 
     loading(v-if="loading")
-    games(v-else :data="data", :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
+    games(v-else :events="events", :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
 
     template(v-if="editable")
       game-dialog(v-model="addGameDialog" :rankedRoles="rankedRoles" @submit="addGame")
-      rank-dialog(v-model="initRank.dialog" :role="initRank.role" @submit="addRank")
+      placement-dialog(v-model="placementRequired.dialog" :role="placementRequired.role" @submit="addPlacement")
       game-dialog(v-model="updateGameDialog" :update="targetGame" @submit="updateGame" @delete="deleteGame")
-      rank-dialog(v-model="updateRankDialog" :update="targetRank" @submit="updateRank")
+      placement-dialog(v-model="updatePlacementDialog" :update="targetPlacement" @submit="updatePlacement")
 </template>
 
 <script lang="ts">
 import Vue from "vue"
 import Games from "~/components/games.vue"
 import GameDialog from "~/components/game-dialog.vue"
-import RankDialog from "~/components/rank-dialog.vue"
+import PlacementDialog from "~/components/placement-dialog.vue"
 import Loading from "~/components/loading.vue"
 import { userStore } from "~/store"
 
@@ -38,7 +38,7 @@ export default Vue.extend({
     Games,
     GameDialog,
     Loading,
-    RankDialog
+    PlacementDialog
   },
   props: {
     player: {
@@ -51,11 +51,12 @@ export default Vue.extend({
     }
   },
   data: () => ({
+    seasons: [],
+
     profile: {} as any,
     icon: null,
 
-    ranked: [] as any[],
-    ranks: [] as any[],
+    games: [] as any[],
     placements: [] as any[],
 
     user: userStore,
@@ -66,72 +67,58 @@ export default Vue.extend({
     updateGameDialog: false,
     targetGame: { id: 0 },
 
-    updateRankDialog: false,
-    targetRank: { id: 0 }
+    updatePlacementDialog: false,
+    targetPlacement: { id: 0 }
   }),
   computed: {
     roleQueue () {
-      // no role-queue for season 1-16
-      return !this.season.match(/(^S\d$)|(^S1[0-7]$)/)
-    },
-    seasons () {
-      if (this.profile.seasons) {
-        return this.profile.seasons.filter((s: any) => s.games > 0).reverse()
-      }
-      return []
+      // no role-queue for season 1-17
+      return !this.season.match(/(^Season \d$)|(^Season 1[0-7]$)/)
     },
     editable (): boolean {
       return this.user.name === this.player
     },
-    data (): any[] {
-      return this.placements.concat(this.ranks).concat(this.ranked)
+    events (): any[] {
+      return this.games.concat(this.placements)
     },
     gamesCount (): number {
-      return this.placements.length + this.ranked.length
+      return this.placements.length + this.games.length
     },
     rankedRoles () {
-      const roles = {
-        Tank: false,
-        Damage: false,
-        Support: false
-      } as { [index: string]: boolean }
+      // determine which roles are done with their placement games
+      const roles = { Tank: false, Damage: false, Support: false } as { [index: string]: boolean }
 
-      for (const r in roles) {
-        if (this.ranked.concat(this.ranks).find(({ role }) => role === r)) {
-          roles[r] = true
+      for (const role in roles) {
+        if (this.games.filter(g => g.ranked).concat(this.placements).find(e => e.role === role)) {
+          roles[role] = true
         }
       }
       return roles
     },
-    initRank () {
-      for (const r of ["Tank", "Damage", "Support"]) {
-        if (!this.ranks.find(({ role }) => role === r)) {
-          if (this.placements.filter(({ role }) => role === r).length >= 5) {
-            return {
-              dialog: true,
-              role: r
-            }
+    placementRequired () {
+      // open placement dialog when at least 5 placement games found
+      for (const role of ["Tank", "Damage", "Support"]) {
+        if (!this.placements.find(p => p.role === role)) {
+          if (this.games.filter(g => g.role === role && !g.ranked).length >= 5) {
+            return { dialog: true, role }
           }
         }
       }
-      return {
-        dialog: false,
-        role: ""
-      }
+      return { dialog: false, role: "" }
     }
   },
   async created () {
     await Promise.all([
+      (this as any).fetchSeasons(),
       (this as any).fetchGames(),
       (this as any).fetchProfile(),
       (this as any).fetchIcon()])
   },
   methods: {
     async fetchGames () {
-      [this.ranked, this.ranks, this.placements] = await Promise.all([
-        this.$axios.$get(`/users/${this.player}/${this.season}/games`),
-        this.$axios.$get(`/users/${this.player}/${this.season}/ranks`),
-        this.$axios.$get(`/users/${this.player}/${this.season}/placements`)])
+      [this.games, this.placements] = await Promise.all([
+        this.$axios.$get(`/users/${this.player}/games?season=${this.season}`),
+        this.$axios.$get(`/users/${this.player}/placements?season=${this.season}`)])
 
       this.loading = false
     },
@@ -141,63 +128,76 @@ export default Vue.extend({
     async fetchIcon () {
       this.icon = (await this.$axios.$get(`/users/${this.player}/icon`)).icon
     },
+    async fetchSeasons () {
+      this.seasons = (await this.$axios.$get("seasons")).reverse()
+    },
 
-    async addGame ({ ranked, payload }: { ranked: boolean, payload: any }) {
-      if (ranked) {
-        const game = await this.$axios.$post(`/users/${this.player}/${this.season}/games`, payload)
-        this.ranked.push(game)
-      } else {
-        const game = await this.$axios.$post(`/users/${this.player}/${this.season}/placements`, payload)
-        this.placements.push(game)
-        this.ranks = await this.$axios.$get(`/users/${this.player}/${this.season}/ranks`)
+    async addGame (payload: any) {
+      payload.season = this.season
+      const game = await this.$axios.$post(`/users/${this.player}/games`, payload)
+      await (this as any).reloadNextGame(game)
+
+      this.games.push(game)
+
+      // if placement game, reload placement events
+      if (!payload.sr) {
+        this.placements = await this.$axios.$get(`/users/${this.player}/placements`)
       }
     },
-    async updateGame ({ ranked, payload }: { ranked: boolean, remove: boolean, payload: any }) {
-      if (ranked) {
-        const game =
-          await this.$axios.$patch(`/users/${this.player}/${this.season}/games/${this.targetGame.id}`, payload)
-        Object.assign(this.targetGame, game)
-      } else {
-        const game =
-          await this.$axios.$patch(`/users/${this.player}/${this.season}/placements/${this.targetGame.id}`, payload)
-        Object.assign(this.targetGame, game)
-        this.ranks = await this.$axios.$get(`/users/${this.player}/${this.season}/ranks`)
+    async updateGame (payload: any) {
+      const game = await this.$axios.$patch(`/users/${this.player}/games/${this.targetGame.id}`, payload)
+      await (this as any).reloadNextGame(this.targetGame)
+
+      Object.assign(this.targetGame, game)
+    },
+    async deleteGame () {
+      await this.$axios.$delete(`/users/${this.player}/games/${this.targetGame.id}`)
+      await (this as any).reloadNextGame(this.targetGame)
+
+      const index = this.games.findIndex(item => item.id === this.targetGame.id)
+      this.games.splice(index, 1)
+    },
+
+    async addPlacement (payload: any) {
+      payload.season = this.season
+      const placement = await this.$axios.$post(`/users/${this.player}/placements`, payload)
+      await (this as any).reloadNextGame(placement)
+
+      this.placements.push(placement)
+    },
+    async updatePlacement (payload: any) {
+      const placement = await this.$axios.$patch(`/users/${this.player}/placements/${this.targetPlacement.id}`, payload)
+      await (this as any).reloadNextGame(this.targetPlacement)
+
+      Object.assign(this.targetPlacement, placement)
+    },
+
+    async reloadNextGame (event: any) {
+      const next = this.games.filter(g => g.role === event.role && g.date > event.date)
+        .sort((a, b) => a.date.localeCompare(b.date))[0]
+
+      if (next) {
+        // console.log("NEXT IS " + next.map)
+        const game = await this.$axios.$get(`/users/${this.player}/games/${next.id}`)
+        Object.assign(next, game)
       }
     },
-    async deleteGame (ranked: boolean) {
-      if (ranked) {
-        await this.$axios.$delete(`/users/${this.player}/${this.season}/games/${this.targetGame.id}`)
-        const index = this.ranked.findIndex(item => item.id === this.targetGame.id)
-        this.ranked.splice(index, 1)
-      } else {
-        await this.$axios.$delete(`/users/${this.player}/${this.season}/placements/${this.targetGame.id}`)
-        const index = this.placements.findIndex(item => item.id === this.targetGame.id)
-        this.placements.splice(index, 1)
-      }
-    },
-    async addRank (payload: any) {
-      const rank = await this.$axios.$post(`/users/${this.player}/${this.season}/ranks`, payload)
-      this.ranks.push(rank)
-    },
-    async updateRank (payload: any) {
-      const rank =
-        await this.$axios.$patch(`/users/${this.player}/${this.season}/ranks/${this.targetRank.id}`, payload)
-      Object.assign(this.targetRank, rank)
-    },
+
     selectSeason (event: Event) {
       const target = (event.target as HTMLSelectElement).value
       this.$router.push("/" + this.player + "/" + target)
     },
+
     onGameClicked (id: string) {
-      const game = this.placements.concat(this.ranked).find(item => item.id === id)
+      const game = this.games.find(item => item.id === id)
       if (game) {
         this.targetGame = game
         this.updateGameDialog = true
       } else {
-        const rank = this.ranks.find(item => item.id === id)
-        if (rank) {
-          this.targetRank = rank
-          this.updateRankDialog = true
+        const placement = this.placements.find(item => item.id === id)
+        if (placement) {
+          this.targetPlacement = placement
+          this.updatePlacementDialog = true
         }
       }
     }

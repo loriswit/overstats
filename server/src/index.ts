@@ -2,10 +2,10 @@ import Koa from "koa"
 import logger from "koa-logger"
 import cors from "@koa/cors"
 import bodyParser from "koa-bodyparser"
+import mongoose from "mongoose"
 
 import errorHandler from "./middlewares/error-handler"
 import router from "./middlewares/router"
-import mongoose from "mongoose"
 
 const app = new Koa()
     .use(logger())
@@ -31,3 +31,7 @@ mongoose.connect(uri, {
         console.error(err)
         process.exit(1)
     })
+
+if (process.env.NODE_ENV == "development") {
+    mongoose.set("debug", true)
+}
