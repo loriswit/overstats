@@ -1,13 +1,7 @@
 import { getModelForClass, index, prop } from "@typegoose/typegoose"
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses"
 
-@index({ name: 1 }, {
-    unique: true,
-    collation: {
-        locale: "en",
-        strength: 2
-    }
-})
+@index({ name: 1 }, { unique: true, collation: { locale: "en", strength: 2 } })
 export class User extends TimeStamps {
     @prop({
         required: true,

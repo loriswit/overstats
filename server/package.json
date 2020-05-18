@@ -2,16 +2,18 @@
   "name": "overstats-server",
   "version": "0.1.0",
   "private": true,
-  "main": "dist/index.js",
   "engines": {
     "node": "^14.2.0"
   },
   "scripts": {
-    "start": "node -r dotenv/config dist/index.js",
-    "dev": "tsnd --no-notify --transpileOnly -r dotenv/config src/index.ts",
+    "start": "node -r dotenv/config dist/server.js",
+    "dev": "tsnd --no-notify --transpileOnly -r dotenv/config src/server.ts",
     "build": "tsc",
     "postinstall": "npm run build",
-    "lint": "eslint --ext .ts --ignore-path .gitignore src/"
+    "lint": "eslint --ext .ts --ignore-path .gitignore src/",
+    "lint:fix": "eslint --ext .ts --ignore-path .gitignore --fix src/",
+    "test": "jest --config jest.config.json",
+    "test:cov": "jest --config jest.config.json --coverage"
   },
   "dependencies": {
     "@koa/cors": "^2.2.3",
@@ -25,12 +27,12 @@
     "koa-jwt": "^3.6.0",
     "koa-logger": "^3.2.1",
     "koa-router": "^8.0.8",
-    "mongoose": "^5.9.10",
-    "node-fetch": "^2.6.0"
+    "mongoose": "^5.9.10"
   },
   "devDependencies": {
     "@types/basic-auth": "^1.1.3",
     "@types/bcrypt": "^3.0.0",
+    "@types/jest": "^25.2.1",
     "@types/jsonwebtoken": "^8.3.9",
     "@types/koa": "^2.11.3",
     "@types/koa-bodyparser": "^4.3.0",
@@ -39,10 +41,14 @@
     "@types/koa__cors": "^3.0.1",
     "@types/mongoose": "^5.7.12",
     "@types/node": "^13.13.1",
-    "@types/node-fetch": "^2.5.7",
+    "@types/supertest": "^2.0.9",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
     "eslint": "^6.8.0",
+    "jest": "^26.0.1",
+    "mongodb-memory-server": "^6.6.0",
+    "supertest": "^4.0.2",
+    "ts-jest": "^25.5.1",
     "ts-node-dev": "^1.0.0-pre.44",
     "typescript": "^3.8.3"
   }

@@ -48,7 +48,7 @@ export default Vue.extend({
   }),
   beforeCreate () {
     if (userStore.logged) {
-      this.$router.replace("/" + userStore.name)
+      this.$router.replace("/" + userStore.name.toLowerCase())
     }
   },
   methods: {
@@ -56,7 +56,7 @@ export default Vue.extend({
       try {
         this.log.error = ""
         await this.logUser(this.log.user, this.log.pass)
-        this.$router.push("/" + userStore.name)
+        this.$router.push("/" + userStore.name.toLowerCase())
       } catch (err) {
         if (err.status === 401) {
           this.log.error = "Wrong credentials"
@@ -75,7 +75,7 @@ export default Vue.extend({
         }
         await this.$axios.$post("/users", payload)
         await this.logUser(this.reg.user, this.reg.pass)
-        this.$router.push("/" + userStore.name)
+        this.$router.push("/" + userStore.name.toLowerCase())
       } catch (err) {
         if (err.status === 409) {
           this.reg.error = "Username not available"

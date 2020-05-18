@@ -1,14 +1,14 @@
 import { Context } from "koa"
 import UserModel from "../models/user"
 import bcrypt from "bcrypt"
-import fetch from "node-fetch"
 import GameModel from "../models/game"
 import PlacementModel from "../models/placement"
 
 export default class UserController {
 
     public static async getUser(name: string, ctx: Context, next: Function) {
-        ctx.user = await UserModel.findOne({ name: { $regex: new RegExp(name, "i") } }).exec()
+        ctx.user = await UserModel.findOne({ name })
+            .collation({ locale: "en", strength: 2 }).exec()
 
         if (!ctx.user) {
             ctx.throw(404, "User doesn't exist: " + name)
@@ -22,9 +22,7 @@ export default class UserController {
         if (!payload.pass || payload.pass.length < 6) {
             ctx.throw(422, "Password must have at least 6 characters")
         }
-        if (payload.pass) {
-            payload.pass = await bcrypt.hash(payload.pass, 10)
-        }
+        payload.pass = await bcrypt.hash(payload.pass, 10)
         const user = new UserModel(payload)
 
         try {
@@ -42,18 +40,6 @@ export default class UserController {
 
     public static async read(ctx: Context) {
         ctx.body = ctx.user.export()
-    }
-
-    public static async readIcon(ctx: Context) {
-        if (ctx.user.battleTag) {
-            const tag = ctx.user.battleTag.replace("#", "-")
-            const response = await fetch(`https://ow-api.com/v1/stats/pc/us/${tag}/profile`)
-            const profile = await response.json()
-
-            ctx.body = { icon: profile.icon }
-        } else {
-            ctx.status = 204
-        }
     }
 
     public static async delete(ctx: Context) {

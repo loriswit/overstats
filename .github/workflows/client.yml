@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build client
     steps:
       - uses: actions/checkout@v2
 
@@ -23,7 +22,6 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    name: Run ESLint
     steps:
       - uses: actions/checkout@v2
 

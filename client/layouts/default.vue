@@ -5,7 +5,7 @@
         h1 Overstats
       nav
         template(v-if="user.logged")
-          nuxt-link.nav(:to="'/' + user.name") Profile
+          nuxt-link.nav(:to="'/' + user.name.toLowerCase()") Profile
           button.nav(@click="user.logout()") Logout
 
         template(v-else)

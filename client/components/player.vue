@@ -7,7 +7,7 @@
         .battle-tag(v-if="profile.battleTag")
           span {{ profile.battleTag.split("#")[0] }}
           span.tag {{ "#" + profile.battleTag.split("#")[1] }}
-        .count(v-if="!loading") {{ gamesCount }} game{{ gamesCount === 1 ? "" : "s" }}
+        .count(v-if="!loading") {{ games.length }} game{{ games.length === 1 ? "" : "s" }}
       .actions
         button(v-if="editable && !loading && roleQueue" @click="addGameDialog = true") add game
         select(v-if="seasons.length > 1" @change="selectSeason")
@@ -76,13 +76,10 @@ export default Vue.extend({
       return !this.season.match(/(^Season \d$)|(^Season 1[0-7]$)/)
     },
     editable (): boolean {
-      return this.user.name === this.player
+      return this.user.name.toUpperCase() === this.player.toUpperCase()
     },
     events (): any[] {
       return this.games.concat(this.placements)
-    },
-    gamesCount (): number {
-      return this.placements.length + this.games.length
     },
     rankedRoles () {
       // determine which roles are done with their placement games
@@ -111,8 +108,7 @@ export default Vue.extend({
     await Promise.all([
       (this as any).fetchSeasons(),
       (this as any).fetchGames(),
-      (this as any).fetchProfile(),
-      (this as any).fetchIcon()])
+      (this as any).fetchProfile()])
   },
   methods: {
     async fetchGames () {
@@ -124,9 +120,10 @@ export default Vue.extend({
     },
     async fetchProfile () {
       this.profile = await this.$axios.$get(`/users/${this.player}`)
-    },
-    async fetchIcon () {
-      this.icon = (await this.$axios.$get(`/users/${this.player}/icon`)).icon
+      if (this.profile.battleTag) {
+        const tag = this.profile.battleTag.replace("#", "-")
+        this.icon = (await this.$axios.$get(`https://ow-api.com/v1/stats/pc/us/${tag}/profile`)).icon
+      }
     },
     async fetchSeasons () {
       this.seasons = (await this.$axios.$get("seasons")).reverse()
