@@ -1,7 +1,7 @@
 <template lang="pug">
   modal(v-model="dialog" background="#464f65" width="350px")
     form(@submit.prevent="submit")
-      h2 {{ update ? "Edit " + update.role : role }} Placement
+      h2 {{ update ? "Edit" : "" }} {{ formattedRole }} Placement
       .field
         label(for="sr") Skill rating
         input#sr(v-model="sr" ref="input" type="number" step="1" max="5000" min="0" required)
@@ -46,6 +46,10 @@ export default Vue.extend({
       set (value: boolean) {
         this.$emit("input", value)
       }
+    },
+    formattedRole (): string {
+      const role = this.update ? this.update.role : this.role
+      return role === "Any" ? "" : role
     }
   },
   watch: {

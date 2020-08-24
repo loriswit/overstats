@@ -9,7 +9,7 @@
           span.tag {{ "#" + profile.battleTag.split("#")[1] }}
         .count(v-if="!loading") {{ games.length }} game{{ games.length === 1 ? "" : "s" }}
       .actions
-        button(v-if="editable && !loading && roleQueue" @click="addGameDialog = true") add game
+        button(v-if="editable && !loading" @click="addGameDialog = true") add game
         select(v-if="seasons.length > 1" @change="selectSeason")
           option(hidden disabled selected) Season
           option(v-for="s in seasons" :value="s.toLowerCase().replace(/ /g, '-')" :selected="season === s") {{ s }}
@@ -18,9 +18,9 @@
     games(v-else :events="events", :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
 
     template(v-if="editable")
-      game-dialog(v-model="addGameDialog" :rankedRoles="rankedRoles" @submit="addGame")
+      game-dialog(v-model="addGameDialog" :ranked-roles="rankedRoles" :role-queue="roleQueue" @submit="addGame")
       placement-dialog(v-model="placementRequired.dialog" :role="placementRequired.role" @submit="addPlacement")
-      game-dialog(v-model="updateGameDialog" :update="targetGame" @submit="updateGame" @delete="deleteGame")
+      game-dialog(v-model="updateGameDialog" :update="targetGame" :role-queue="roleQueue" @submit="updateGame" @delete="deleteGame")
       placement-dialog(v-model="updatePlacementDialog" :update="targetPlacement" @submit="updatePlacement")
 </template>
 
@@ -73,7 +73,7 @@ export default Vue.extend({
   computed: {
     roleQueue () {
       // no role-queue for season 1-17
-      return !this.season.match(/(^Season \d$)|(^Season 1[0-7]$)/)
+      return !this.season.match(/(^Season \d$)|(^Season 1[0-7]$)|(^Season \d+ Open Queue$)/)
     },
     editable (): boolean {
       return this.user.name.toUpperCase() === this.player.toUpperCase()
@@ -94,7 +94,7 @@ export default Vue.extend({
     },
     placementRequired () {
       // open placement dialog when at least 5 placement games found
-      for (const role of ["Tank", "Damage", "Support"]) {
+      for (const role of ["Tank", "Damage", "Support", "Any"]) {
         if (!this.placements.find(p => p.role === role)) {
           if (this.games.filter(g => g.role === role && !g.ranked).length >= 5) {
             return { dialog: true, role }
@@ -138,7 +138,7 @@ export default Vue.extend({
 
       // if placement game, reload placement events
       if (!payload.sr) {
-        this.placements = await this.$axios.$get(`/users/${this.player}/placements`)
+        this.placements = await this.$axios.$get(`/users/${this.player}/placements?season=${this.season}`)
       }
     },
     async updateGame (payload: any) {

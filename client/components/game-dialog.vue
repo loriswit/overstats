@@ -3,7 +3,7 @@
     form(@submit.prevent="submit")
       h2(v-if="update") Edit game
       h2(v-else) Add a new game
-      .field(v-if="!update")
+      .field(v-if="!update && roleQueue")
         label(for="role") Role
         select#role(v-model="role" @change="ranked = rankedRoles[role]" required)
           option(v-for="r in roles" :value="r") {{ r }}
@@ -70,6 +70,11 @@ export default Vue.extend({
         Damage: false,
         Support: false
       })
+    },
+    roleQueue: {
+      type: Boolean,
+      required: false,
+      default: true
     }
   },
   data: () => ({
@@ -175,7 +180,7 @@ export default Vue.extend({
       const payload = {
         sr: this.ranked ? +this.sr : undefined,
         outcome: this.needOutcome ? this.outcome : undefined,
-        role: this.role,
+        role: this.roleQueue ? this.role : "Any",
         map: this.map,
         balance: this.balance,
         date: new Date(this.date)

@@ -12,17 +12,15 @@ export default Vue.extend({
   },
   computed: {
     season () {
-      const season = this.$route.params.season
-      if (season.startsWith("season-")) {
-        return "Season " + season.slice(7)
-      } else if (season === "role-queue-beta") {
-        return "Role Queue Beta"
-      }
-      return season
+      return this.$route.params.season
+        .toLowerCase()
+        .split("-")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
     }
   },
   beforeCreate () {
-    if (this.$route.params.season === "season-22") {
+    if (this.$route.params.season === "season-23-role-queue") {
       this.$router.replace("/" + this.$route.params.user)
     }
   }
