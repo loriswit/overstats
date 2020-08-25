@@ -83,7 +83,7 @@ export default Vue.extend({
     },
     rankedRoles () {
       // determine which roles are done with their placement games
-      const roles = { Tank: false, Damage: false, Support: false } as { [index: string]: boolean }
+      const roles = { Tank: false, Damage: false, Support: false, Any: false } as { [index: string]: boolean }
 
       for (const role in roles) {
         if (this.games.filter(g => g.ranked).concat(this.placements).find(e => e.role === role)) {
@@ -93,10 +93,10 @@ export default Vue.extend({
       return roles
     },
     placementRequired () {
-      // open placement dialog when at least 5 placement games found
-      for (const role of ["Tank", "Damage", "Support", "Any"]) {
+      // open placement dialog when enough placement games found
+      for (const [role, required] of [["Tank", 5], ["Damage", 5], ["Support", 5], ["Any", 10]]) {
         if (!this.placements.find(p => p.role === role)) {
-          if (this.games.filter(g => g.role === role && !g.ranked).length >= 5) {
+          if (this.games.filter(g => g.role === role && !g.ranked).length >= required) {
             return { dialog: true, role }
           }
         }
@@ -174,7 +174,6 @@ export default Vue.extend({
         .sort((a, b) => a.date.localeCompare(b.date))[0]
 
       if (next) {
-        // console.log("NEXT IS " + next.map)
         const game = await this.$axios.$get(`/users/${this.player}/games/${next.id}`)
         Object.assign(next, game)
       }

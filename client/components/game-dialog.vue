@@ -68,7 +68,8 @@ export default Vue.extend({
       default: () => ({
         Tank: false,
         Damage: false,
-        Support: false
+        Support: false,
+        Any: false
       })
     },
     roleQueue: {
@@ -162,6 +163,7 @@ export default Vue.extend({
           this.outcome = ""
           this.sr = ""
           this.balance = "Balanced"
+          this.role = this.roleQueue ? this.role : "Any"
           this.ranked = this.rankedRoles[this.role]
         }
 
@@ -180,7 +182,7 @@ export default Vue.extend({
       const payload = {
         sr: this.ranked ? +this.sr : undefined,
         outcome: this.needOutcome ? this.outcome : undefined,
-        role: this.roleQueue ? this.role : "Any",
+        role: this.role,
         map: this.map,
         balance: this.balance,
         date: new Date(this.date)
