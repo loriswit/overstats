@@ -20,7 +20,7 @@ export default Vue.extend({
     }
   },
   beforeCreate () {
-    if (this.$route.params.season === "season-23-role-queue") {
+    if (this.$route.params.season === "season-24-role-queue") {
       this.$router.replace("/" + this.$route.params.user)
     }
   }
