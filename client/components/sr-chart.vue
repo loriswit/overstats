@@ -2,6 +2,7 @@
 import { Line } from "vue-chartjs"
 import Vue, { PropOptions } from "vue"
 import Chart from "chart.js"
+import { Event } from "~/types/event"
 
 export default Vue.extend({
   name: "SrChart",
@@ -10,14 +11,14 @@ export default Vue.extend({
     events: {
       type: Array,
       required: true
-    } as PropOptions<any[]>,
+    } as PropOptions<Event[]>,
     editable: {
       type: Boolean,
       required: false,
       default: false
     }
   },
-  data () {
+  data (this: any) {
     return {
       chartData: {
         datasets: [{
@@ -41,7 +42,7 @@ export default Vue.extend({
       } as any,
       options: {
         maintainAspectRatio: false,
-        onClick: (this as any).onClick,
+        onClick: this.onClick,
         layout: {
           padding: 20
         },
@@ -69,22 +70,33 @@ export default Vue.extend({
       }
     }
   },
-  mounted () {
-    const games = this.events
-      .filter(g => g.sr)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-
-    for (const dataset of this.chartData.datasets) {
-      const role = dataset.label === "Open Queue" ? "Any" : dataset.label
-      dataset.data = games
-        .filter(g => g.role === role)
-        .map(g => ({ x: new Date(g.date), y: g.sr, id: g.id }))
+  watch: {
+    events: {
+      handler (this: any) {
+        this.updateChart()
+      },
+      deep: true
     }
-
-    this.chartData.datasets = this.chartData.datasets.filter((d: any) => d.data.length > 0)
-    ;(this as any).renderChart(this.chartData, this.options)
+  },
+  mounted (this: any) {
+    this.updateChart()
   },
   methods: {
+    updateChart (this: any) {
+      const games = this.events
+        .filter((g: Event) => g.sr)
+        .sort((a: Event, b: Event) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+      for (const dataset of this.chartData.datasets) {
+        const role = dataset.label === "Open Queue" ? "Any" : dataset.label
+        dataset.data = games
+          .filter((g: Event) => g.role === role)
+          .map((g: Event) => ({ x: new Date(g.date), y: g.sr, id: g.id }))
+      }
+
+      this.chartData.datasets = this.chartData.datasets.filter((d: any) => d.data.length > 0)
+      this.renderChart(this.chartData, this.options)
+    },
     onClick (_: any, event: any) {
       if (!event[0]) {
         return
@@ -100,6 +112,6 @@ export default Vue.extend({
 
 <style scoped lang="sass">
 canvas
-  background-color: rgba(255, 255, 255, 0.8)
+  background-color: $glass
   border-radius: 10px
 </style>

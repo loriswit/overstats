@@ -45,24 +45,7 @@
 <script lang="ts">
 import Vue, { PropOptions } from "vue"
 import Icon from "~/components/icon.vue"
-
-interface Event {
-  id: string,
-  date: Date,
-  role: Role,
-  day: number
-  placement: boolean
-  diff: number | undefined
-  sr: number | undefined
-  map: string | undefined
-  balance: string | undefined
-  outcome: string | undefined
-  ranked: boolean | undefined
-}
-
-enum Role {
-  Tank, Damage, Support, Any
-}
+import { Event, Role } from "~/types/event"
 
 export default Vue.extend({
   name: "Games",
