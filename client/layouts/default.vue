@@ -83,33 +83,38 @@ body
   background: linear-gradient(#2e4079, #1d2742) fixed
   height: 100%
 
-main > header
-  background-color: black
+main
   display: flex
-  justify-content: space-between
-  align-items: center
-  padding: 3px 10px
-  border-bottom: 1px solid rgba(0, 0, 0, 0.75)
+  height: 100vh
+  flex-direction: column
 
-  h1
-    font-size: 1.2em
-    letter-spacing: 4px
+  > header
+    background-color: black
+    display: flex
+    justify-content: space-between
+    align-items: center
+    padding: 3px 10px
+    border-bottom: 1px solid rgba(0, 0, 0, 0.75)
 
-  .nav
-    font-family: Raleway, sans-serif
-    font-size: 16px
-    text-transform: uppercase
-    letter-spacing: 1px
-    color: white
-    background: none
-    text-decoration: none
-    white-space: nowrap
-    cursor: pointer
-    border: none
-    padding: 12px
+    h1
+      font-size: 1.2em
+      letter-spacing: 4px
 
-    &:hover
-      color: #ffea7e
+    .nav
+      font-family: Raleway, sans-serif
+      font-size: 16px
+      text-transform: uppercase
+      letter-spacing: 1px
+      color: white
+      background: none
+      text-decoration: none
+      white-space: nowrap
+      cursor: pointer
+      border: none
+      padding: 12px
+
+      &:hover
+        color: #ffea7e
 
 button:not(.nav)
   font-family: Raleway, sans-serif

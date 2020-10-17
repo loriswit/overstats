@@ -3,7 +3,7 @@ import { config } from "dotenv"
 config() // import .env before configuring Nuxt
 
 export default {
-    mode: "spa",
+    ssr: false,
     head: {
         titleTemplate: (title: string) =>
             (title ? title + " - " : "") + "Overstats",

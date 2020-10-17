@@ -7,15 +7,18 @@
     "dev": "nuxt-ts",
     "build": "nuxt-ts build",
     "generate": "nuxt-ts generate",
-    "postinstall": "npm run build",
-    "lint": "eslint --ext .ts,.vue --ignore-path .gitignore ."
+    "lint": "eslint --ext .ts,.vue --ignore-path .gitignore .",
+    "lint:fix": "npm run lint -- --fix",
+    "install": "npm run build"
   },
   "dependencies": {
     "@nuxt/typescript-runtime": "^0.4.10",
     "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/dotenv": "^1.4.0",
     "@nuxtjs/style-resources": "^1.0.0",
+    "chart.js": "^2.9.3",
     "nuxt": "^2.14.7",
+    "vue-chartjs": "^3.5.1",
     "vuex-module-decorators": "^0.17.0"
   },
   "devDependencies": {

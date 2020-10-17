@@ -13,9 +13,14 @@
         select(v-if="seasons.length > 1" @change="selectSeason")
           option(hidden disabled selected) Season
           option(v-for="s in seasons" :value="s.toLowerCase().replace(/ /g, '-')" :selected="season === s") {{ s }}
+        select(v-model="show")
+          option(value="games") History
+          option(value="chart") Progression
 
     loading(v-if="loading")
-    games(v-else :events="events", :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
+    games(v-else-if="show === 'games'" :events="events" :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
+    .chart(v-else-if="show === 'chart'")
+      sr-chart(:events="events" :editable="editable" @click-game="onGameClicked")
 
     template(v-if="editable")
       game-dialog(v-model="addGameDialog" :ranked-roles="rankedRoles" :role-queue="roleQueue" @submit="addGame")
@@ -30,6 +35,7 @@ import Games from "~/components/games.vue"
 import GameDialog from "~/components/game-dialog.vue"
 import PlacementDialog from "~/components/placement-dialog.vue"
 import Loading from "~/components/loading.vue"
+import SrChart from "~/components/sr-chart.vue"
 import { userStore } from "~/store"
 
 export default Vue.extend({
@@ -38,7 +44,8 @@ export default Vue.extend({
     Games,
     GameDialog,
     Loading,
-    PlacementDialog
+    PlacementDialog,
+    SrChart
   },
   props: {
     player: {
@@ -55,6 +62,8 @@ export default Vue.extend({
 
     profile: {} as any,
     icon: null,
+
+    show: "games",
 
     games: [] as any[],
     placements: [] as any[],
@@ -207,6 +216,11 @@ export default Vue.extend({
 </script>
 
 <style lang="sass" scoped>
+.container
+  flex: 1
+  display: flex
+  flex-direction: column
+
 header
   display: flex
   justify-content: space-between
@@ -252,4 +266,13 @@ header
 
     select
       margin-left: 16px
+      width: initial
+
+.chart
+  width: 100%
+  padding: 40px
+  flex: 1
+
+  > *
+    height: 100%
 </style>
