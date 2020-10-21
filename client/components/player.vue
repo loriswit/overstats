@@ -9,7 +9,7 @@
           span.tag {{ "#" + profile.battleTag.split("#")[1] }}
         .count(v-if="!loading") {{ games.length }} game{{ games.length === 1 ? "" : "s" }}
       .actions
-        button(v-if="editable && !loading" @click="addGameDialog = true") add game
+        button(v-if="editable && season" @click="addGameDialog = true") Add game
         select(v-model="season" @change="fetchGames")
           option(value="") All seasons
           option(v-for="s in seasons" :value="s") {{ s }}
