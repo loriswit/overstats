@@ -13,6 +13,9 @@
         select(v-if="seasons.length > 1" @change="selectSeason")
           option(hidden disabled selected) Season
           option(v-for="s in seasons" :value="s.toLowerCase().replace(/ /g, '-')" :selected="season === s") {{ s }}
+        select(v-if="seasonNumber > 22 && show === 'games'" v-model="queueMode")
+          option(value="rq") Role Queue
+          option(value="oq") Open Queue
         select(v-model="show")
           option(value="games") History
           option(value="chart") Progression
@@ -59,6 +62,7 @@ export default Vue.extend({
   },
   data: () => ({
     seasons: [],
+    queueMode: "rq",
 
     profile: {} as any,
     icon: null,
@@ -80,9 +84,19 @@ export default Vue.extend({
     targetPlacement: { id: 0 }
   }),
   computed: {
-    roleQueue () {
-      // no role-queue for season 1-17
-      return !this.season.match(/(^Season \d$)|(^Season 1[0-7]$)|(^Season \d+ Open Queue$)/)
+    seasonNumber (): number {
+      if (this.season === "Role Queue Beta") {
+        return 17.5
+      } else {
+        return parseInt(this.season.slice(7))
+      }
+    },
+    roleQueue (): boolean {
+      if (this.seasonNumber > 22) {
+        return this.queueMode === "rq"
+      }
+
+      return this.seasonNumber > 17
     },
     editable (): boolean {
       return this.user.name.toUpperCase() === this.player.toUpperCase()

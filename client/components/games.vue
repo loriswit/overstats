@@ -96,12 +96,15 @@ export default Vue.extend({
         events.push(game)
       }
 
+      // filter games according to queue type
+      const filtered = events.filter(game => this.roleQueue ? game.role !== Role.Any : game.role === Role.Any)
+
       // sort games by date
-      events.sort((a: Event, b: Event) => b.date.getTime() - a.date.getTime())
+      filtered.sort((a: Event, b: Event) => b.date.getTime() - a.date.getTime())
 
       // split games by roles and days
       const previous = [] as Event[]
-      const days = events.reduce((days: Event[][][], game: Event) => {
+      const days = filtered.reduce((days: Event[][][], game: Event) => {
         if (!days[game.day]) {
           days[game.day] = [[], [], [], []]
         }

@@ -33,10 +33,8 @@ export enum Season {
     S20 = "Season 20",
     S21 = "Season 21",
     S22 = "Season 22",
-    S23OQ = "Season 23 Open Queue",
-    S23RQ = "Season 23 Role Queue",
-    S24OQ = "Season 24 Open Queue",
-    S24RQ = "Season 24 Role Queue",
+    S23 = "Season 23",
+    S24 = "Season 24",
 }
 
 export interface Event extends Base {
