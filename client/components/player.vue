@@ -10,9 +10,9 @@
         .count(v-if="!loading") {{ games.length }} game{{ games.length === 1 ? "" : "s" }}
       .actions
         button(v-if="editable && !loading" @click="addGameDialog = true") add game
-        select(v-if="seasons.length > 1" @change="selectSeason")
-          option(hidden disabled selected) Season
-          option(v-for="s in seasons" :value="s.toLowerCase().replace(/ /g, '-')" :selected="season === s") {{ s }}
+        select(v-model="season" @change="fetchGames")
+          option(value="") All seasons
+          option(v-for="s in seasons" :value="s") {{ s }}
         select(v-if="seasonNumber > 22 && show === 'games'" v-model="queueMode")
           option(value="rq") Role Queue
           option(value="oq") Open Queue
@@ -21,7 +21,7 @@
           option(value="chart") Progression
 
     loading(v-if="loading")
-    games(v-else-if="show === 'games'" :events="events" :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
+    games(v-if="show === 'games'" :events="events" :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
     .chart(v-else-if="show === 'chart'")
       sr-chart(:events="events" :editable="editable" @click-game="onGameClicked")
 
@@ -54,13 +54,10 @@ export default Vue.extend({
     player: {
       type: String,
       required: true
-    },
-    season: {
-      type: String,
-      required: true
     }
   },
   data: () => ({
+    season: "",
     seasons: [],
     queueMode: "rq",
 
@@ -73,7 +70,7 @@ export default Vue.extend({
     placements: [] as any[],
 
     user: userStore,
-    loading: true,
+    loading: false,
 
     addGameDialog: false,
 
@@ -85,13 +82,15 @@ export default Vue.extend({
   }),
   computed: {
     seasonNumber (): number {
+      if (this.season === "") {
+        return Number.MAX_VALUE
+      }
       if (this.season === "Role Queue Beta") {
         return 17.5
-      } else {
-        return parseInt(this.season.slice(7))
       }
+      return parseInt(this.season.slice(7))
     },
-    roleQueue (): boolean {
+    roleQueue (this: any): boolean {
       if (this.seasonNumber > 22) {
         return this.queueMode === "rq"
       }
@@ -127,15 +126,18 @@ export default Vue.extend({
       return { dialog: false, role: "" }
     }
   },
-  async created () {
-    await Promise.all([
-      (this as any).fetchSeasons(),
-      (this as any).fetchGames(),
-      (this as any).fetchProfile()])
+  async created (this: any) {
+    this.fetchProfile()
+
+    await this.fetchSeasons()
+    this.season = this.seasons[0]
+    await this.fetchGames()
   },
   methods: {
     async fetchGames () {
-      [this.games, this.placements] = await Promise.all([
+      this.loading = true
+
+      ;[this.games, this.placements] = await Promise.all([
         this.$axios.$get(`/users/${this.player}/games?season=${this.season}`),
         this.$axios.$get(`/users/${this.player}/placements?season=${this.season}`)])
 
@@ -200,11 +202,6 @@ export default Vue.extend({
         const game = await this.$axios.$get(`/users/${this.player}/games/${next.id}`)
         Object.assign(next, game)
       }
-    },
-
-    selectSeason (event: Event) {
-      const target = (event.target as HTMLSelectElement).value
-      this.$router.push("/" + this.player + "/" + target)
     },
 
     onGameClicked (id: string) {

@@ -20,26 +20,23 @@ export default Vue.extend({
   },
   data (this: any) {
     return {
-      chartData: {
-        datasets: [{
-          label: "Open Queue",
-          borderColor: "#223388",
-          backgroundColor: "rgba(0,0,255,0.1)"
-        }, {
-          label: "Tank",
-          borderColor: "#228833",
-          backgroundColor: "rgba(0,128,0,0.1)"
-        }, {
-          label: "Damage",
-          borderColor: "#882233",
-          backgroundColor: "rgba(255,0,0,0.1)"
-        }, {
-          label: "Support",
-          borderColor: "#778833",
-          backgroundColor: "rgba(196,196,0,0.1)"
-        }
-        ]
-      } as any,
+      datasets: [{
+        label: "Open Queue",
+        borderColor: "#223388",
+        backgroundColor: "rgba(0,0,255,0.1)"
+      }, {
+        label: "Tank",
+        borderColor: "#228833",
+        backgroundColor: "rgba(0,128,0,0.1)"
+      }, {
+        label: "Damage",
+        borderColor: "#882233",
+        backgroundColor: "rgba(255,0,0,0.1)"
+      }, {
+        label: "Support",
+        borderColor: "#778833",
+        backgroundColor: "rgba(196,196,0,0.1)"
+      }] as any[],
       options: {
         maintainAspectRatio: false,
         onClick: this.onClick,
@@ -87,15 +84,18 @@ export default Vue.extend({
         .filter((g: Event) => g.sr)
         .sort((a: Event, b: Event) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
-      for (const dataset of this.chartData.datasets) {
+      for (const dataset of this.datasets) {
         const role = dataset.label === "Open Queue" ? "Any" : dataset.label
         dataset.data = games
           .filter((g: Event) => g.role === role)
           .map((g: Event) => ({ x: new Date(g.date), y: g.sr, id: g.id }))
       }
 
-      this.chartData.datasets = this.chartData.datasets.filter((d: any) => d.data.length > 0)
-      this.renderChart(this.chartData, this.options)
+      const chartData = {
+        datasets: this.datasets.filter((d: any) => d.data.length > 0)
+      }
+
+      this.renderChart(chartData, this.options)
     },
     onClick (_: any, event: any) {
       if (!event[0]) {
@@ -103,7 +103,7 @@ export default Vue.extend({
       }
       const di = event[0]._datasetIndex
       const i = event[0]._index
-      const id = this.chartData.datasets[di].data[i].id
+      const id = this.datasets[di].data[i].id
       this.$emit("click-game", id)
     }
   }
