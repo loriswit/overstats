@@ -19,9 +19,11 @@
         select(v-model="view")
           option(:value="View.History") History
           option(:value="View.Chart") Progression
+          option(:value="View.Stats") Statistics
 
     loading(v-if="loading")
     history(v-if="view === View.History" :events="events" :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
+    stats(v-else-if="view === View.Stats" :games="games")
     .chart(v-else-if="view === View.Chart")
       sr-chart(:events="events" :editable="editable" @click-game="onGameClicked")
 
@@ -41,21 +43,25 @@ import PlacementDialog from "~/components/player/dialogs/placement-dialog.vue"
 
 import History from "~/components/player/views/history.vue"
 import SrChart from "~/components/player/views/sr-chart.vue"
+import Stats from "~/components/player/views/stats.vue"
+
 import { userStore } from "~/store"
 
 enum View {
   History = "history",
-  Chart = "chart"
+  Chart = "chart",
+  Stats = "stats"
 }
 
 export default Vue.extend({
   name: "Player",
   components: {
     History,
+    SrChart,
+    Stats,
     GameDialog,
-    Loading,
     PlacementDialog,
-    SrChart
+    Loading
   },
   props: {
     player: {

@@ -152,181 +152,171 @@ export default Vue.extend({
 </script>
 
 <style lang="sass" scoped>
-.games
-  .title
-    text-transform: uppercase
-    color: $glass
-    background: rgba(0, 0, 0, 0.3)
-    font-size: 1.1em
-    text-align: center
-    padding: 12px
-    margin-bottom: 10px
+header
+  background: rgba(0, 0, 0, 0.5)
 
-  header
-    background: rgba(0, 0, 0, 0.5)
-
-    .roles
-      height: 80px
-      display: flex
-      justify-content: space-around
-      align-items: center
-      max-width: 1400px
-      margin: auto
-
-      .role
-        font-family: BigNoodleTooOblique, sans-serif
-        font-size: 2.6em
-        letter-spacing: 1px
-        color: white
-        width: 100%
-        text-align: center
-
-        &:not(:last-child)
-          border-right: 1px solid rgba(100, 100, 100, 0.7)
-
-        .icon
-          width: 30px
-          margin-right: 15px
-          filter: invert(100%)
-
-  .day .roles
+  .roles
+    height: 80px
     display: flex
-    justify-content: center
+    justify-content: space-around
+    align-items: center
     max-width: 1400px
     margin: auto
 
     .role
-      margin: 10px 10px 30px
-      max-width: 500px
-
-  table
-    border-collapse: collapse
-    table-layout: fixed
-    width: 100%
-
-  tr
-    background: $glass
-
-    &:not(:last-child)
-      border-bottom: 1px solid #a8bcd4
-
-    &.unbalanced
-      background: rgba(255, 255, 255, 0.65)
-
-      .map .name
-        color: grey
-
-  .editable tr
-    cursor: pointer
-
-    &:hover
-      background: rgba(255, 255, 255, 0.9)
-
-      .diff, .outcome
-        background: #ffed98
-
-      .victory
-        background: #b3ffb3
-
-      .defeat
-        background: #ffc5c5
-
-    &:hover.placement
-      background: #7a808d
-
-      .placement-sr
-        background: #5f6878
-
-  td
-    padding: 8px
-
-  .time
-    font-family: Manrope, sans-serif
-    color: grey
-    text-align: right
-    width: 65px
-
-  .map
-    display: flex
-    align-items: center
-
-    .name
-      color: $bluish
       font-family: BigNoodleTooOblique, sans-serif
-      font-size: 1.6em
-      width: 100%
-      white-space: nowrap
-      overflow: hidden
-      text-overflow: ellipsis
-
-    .balance
-      margin-left: 10px
-      font-size: 1.1em
-
-      &.fa-smile
-        color: #90ff90
-
-      &.fa-frown
-        color: #ffa4a4
-
-  .sr
-    color: grey
-    font-family: BigNoodleTooOblique, sans-serif
-    font-size: 1.3em
-    padding-right: 15px
-    width: 52px
-
-  .diff
-    font-family: Manrope, sans-serif
-    width: 48px
-    text-align: center
-    font-size: 1.1em
-
-  .outcome
-    font-family: BigNoodleTooOblique, sans-serif
-    font-size: 1.6em
-    text-align: center
-    width: 100px
-
-  .victory
-    color: #006800
-    background: #90ff90
-
-  .defeat
-    color: #a50000
-    background: #ffa4a4
-
-  .draw
-    color: #ba7200
-    background: #ffe883
-
-  .placement
-    background: #5b626d
-
-    .time
-      color: lightgrey
-
-    .placement-title
-      font-family: BigNoodleTooOblique, sans-serif
-      font-size: 1.6em
+      font-size: 2.6em
+      letter-spacing: 1px
       color: white
       width: 100%
-      white-space: nowrap
-      overflow: hidden
-      text-overflow: ellipsis
+      text-align: center
+
+      &:not(:last-child)
+        border-right: 1px solid rgba(100, 100, 100, 0.7)
 
       .icon
+        width: 30px
+        margin-right: 15px
         filter: invert(100%)
-        width: 20px
-        margin-right: 8px
+
+.day .roles
+  display: flex
+  justify-content: center
+  max-width: 1400px
+  margin: auto
+
+  .role
+    margin: 10px 10px 30px
+    max-width: 500px
+
+table
+  border-collapse: collapse
+  table-layout: fixed
+  width: 100%
+
+tr
+  background: $glass
+
+  &:not(:last-child)
+    border-bottom: 1px solid #a8bcd4
+
+  &.unbalanced
+    background: rgba(255, 255, 255, 0.65)
+
+    .map .name
+      color: grey
+
+.editable tr
+  cursor: pointer
+
+  &:hover
+    background: rgba(255, 255, 255, 0.9)
+
+    .diff, .outcome
+      background: #ffed98
+
+    .victory
+      background: #b3ffb3
+
+    .defeat
+      background: #ffc5c5
+
+  &:hover.placement
+    background: #7a808d
 
     .placement-sr
-      font-family: BigNoodleTooOblique, sans-serif
-      letter-spacing: 1px
-      font-size: 1.6em
-      background: #444d5a
-      color: #c9ecff
-      text-align: center
-      width: 100px
+      background: #5f6878
+
+td
+  padding: 8px
+
+.time
+  font-family: Manrope, sans-serif
+  color: grey
+  text-align: right
+  width: 65px
+
+.map
+  display: flex
+  align-items: center
+
+  .name
+    color: $bluish
+    font-family: BigNoodleTooOblique, sans-serif
+    font-size: 1.6em
+    width: 100%
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+
+  .balance
+    margin-left: 10px
+    font-size: 1.1em
+
+    &.fa-smile
+      color: #90ff90
+
+    &.fa-frown
+      color: #ffa4a4
+
+.sr
+  color: grey
+  font-family: BigNoodleTooOblique, sans-serif
+  font-size: 1.3em
+  padding-right: 15px
+  width: 52px
+
+.diff
+  font-family: Manrope, sans-serif
+  width: 48px
+  text-align: center
+  font-size: 1.1em
+
+.outcome
+  font-family: BigNoodleTooOblique, sans-serif
+  font-size: 1.6em
+  text-align: center
+  width: 100px
+
+.victory
+  color: #006800
+  background: #90ff90
+
+.defeat
+  color: #a50000
+  background: #ffa4a4
+
+.draw
+  color: #ba7200
+  background: #ffe883
+
+.placement
+  background: #5b626d
+
+  .time
+    color: lightgrey
+
+  .placement-title
+    font-family: BigNoodleTooOblique, sans-serif
+    font-size: 1.6em
+    color: white
+    width: 100%
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+
+    .icon
+      filter: invert(100%)
+      width: 20px
+      margin-right: 8px
+
+  .placement-sr
+    font-family: BigNoodleTooOblique, sans-serif
+    letter-spacing: 1px
+    font-size: 1.6em
+    background: #444d5a
+    color: #c9ecff
+    text-align: center
+    width: 100px
 
 </style>
