@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import Vue from "vue"
-import Modal from "~/components/modal.vue"
+import Modal from "~/components/util/modal.vue"
 
 export default Vue.extend({
   name: "PlacementDialog",

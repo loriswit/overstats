@@ -25,7 +25,7 @@
 <script lang="ts">
 import Vue from "vue"
 import { userStore } from "~/store"
-import Modal from "~/components/modal.vue"
+import Modal from "~/components/util/modal.vue"
 import { HttpError } from "~/plugins/axios-init"
 
 export default Vue.extend({

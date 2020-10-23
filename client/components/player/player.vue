@@ -13,16 +13,16 @@
         select(v-model="season" @change="fetchGames")
           option(value="") All seasons
           option(v-for="s in seasons" :value="s") {{ s }}
-        select(v-if="seasonNumber > 22 && show === 'games'" v-model="queueMode")
+        select(v-if="seasonNumber > 22 && view === View.History" v-model="queueMode")
           option(value="rq") Role Queue
           option(value="oq") Open Queue
-        select(v-model="show")
-          option(value="games") History
-          option(value="chart") Progression
+        select(v-model="view")
+          option(:value="View.History") History
+          option(:value="View.Chart") Progression
 
     loading(v-if="loading")
-    games(v-if="show === 'games'" :events="events" :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
-    .chart(v-else-if="show === 'chart'")
+    history(v-if="view === View.History" :events="events" :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
+    .chart(v-else-if="view === View.Chart")
       sr-chart(:events="events" :editable="editable" @click-game="onGameClicked")
 
     template(v-if="editable")
@@ -34,17 +34,24 @@
 
 <script lang="ts">
 import Vue from "vue"
-import Games from "~/components/games.vue"
-import GameDialog from "~/components/game-dialog.vue"
-import PlacementDialog from "~/components/placement-dialog.vue"
-import Loading from "~/components/loading.vue"
-import SrChart from "~/components/sr-chart.vue"
+import Loading from "~/components/util/loading.vue"
+
+import GameDialog from "~/components/player/dialogs/game-dialog.vue"
+import PlacementDialog from "~/components/player/dialogs/placement-dialog.vue"
+
+import History from "~/components/player/views/history.vue"
+import SrChart from "~/components/player/views/sr-chart.vue"
 import { userStore } from "~/store"
+
+enum View {
+  History = "history",
+  Chart = "chart"
+}
 
 export default Vue.extend({
   name: "Player",
   components: {
-    Games,
+    History,
     GameDialog,
     Loading,
     PlacementDialog,
@@ -64,7 +71,8 @@ export default Vue.extend({
     profile: {} as any,
     icon: null,
 
-    show: "games",
+    View,
+    view: View.History,
 
     games: [] as any[],
     placements: [] as any[],

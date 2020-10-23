@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import Vue from "vue"
-import Player from "~/components/player.vue"
+import Player from "~/components/player/player.vue"
 
 export default Vue.extend({
   components: {

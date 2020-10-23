@@ -44,11 +44,11 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from "vue"
-import Icon from "~/components/icon.vue"
+import Icon from "~/components/util/icon.vue"
 import { Event, Role } from "~/types/event"
 
 export default Vue.extend({
-  name: "Games",
+  name: "History",
   components: {
     Icon
   },
@@ -151,7 +151,7 @@ export default Vue.extend({
 })
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 .games
   .title
     text-transform: uppercase
