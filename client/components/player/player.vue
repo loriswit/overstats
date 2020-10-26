@@ -22,10 +22,11 @@
           option(:value="View.Stats") Statistics
 
     loading(v-if="loading")
-    history(v-if="view === View.History" :events="events" :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
-    stats(v-else-if="view === View.Stats" :games="games")
-    .chart(v-else-if="view === View.Chart")
-      sr-chart(:events="events" :editable="editable" @click-game="onGameClicked")
+    template(v-if="pageReady")
+      history(v-if="view === View.History" :events="events" :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
+      stats(v-else-if="view === View.Stats" :games="games")
+      .chart(v-else-if="view === View.Chart")
+        sr-chart(:events="events" :editable="editable" @click-game="onGameClicked")
 
     template(v-if="editable")
       game-dialog(v-model="addGameDialog" :ranked-roles="rankedRoles" :role-queue="roleQueue" @submit="addGame")
@@ -84,7 +85,8 @@ export default Vue.extend({
     placements: [] as any[],
 
     user: userStore,
-    loading: false,
+    loading: true,
+    pageReady: false,
 
     addGameDialog: false,
 
@@ -146,16 +148,27 @@ export default Vue.extend({
     await this.fetchSeasons()
     this.season = this.seasons[0]
     await this.fetchGames()
+
+    this.pageReady = true
   },
   methods: {
     async fetchGames () {
       this.loading = true
-
-      ;[this.games, this.placements] = await Promise.all([
-        this.$axios.$get(`/users/${this.player}/games?season=${this.season}`),
-        this.$axios.$get(`/users/${this.player}/placements?season=${this.season}`)])
-
-      this.loading = false
+      try {
+        [this.games, this.placements] = await Promise.all([
+          this.$axios.$get(`/users/${this.player}/games?season=${this.season}`),
+          this.$axios.$get(`/users/${this.player}/placements?season=${this.season}`)])
+      } finally {
+        this.loading = false
+      }
+    },
+    async fetchSeasons () {
+      this.loading = true
+      try {
+        this.seasons = (await this.$axios.$get("seasons")).reverse()
+      } finally {
+        this.loading = false
+      }
     },
     async fetchProfile () {
       this.profile = await this.$axios.$get(`/users/${this.player}`)
@@ -163,9 +176,6 @@ export default Vue.extend({
         const tag = this.profile.battleTag.replace("#", "-")
         this.icon = (await this.$axios.$get(`https://ow-api.com/v1/stats/pc/us/${tag}/profile`)).icon
       }
-    },
-    async fetchSeasons () {
-      this.seasons = (await this.$axios.$get("seasons")).reverse()
     },
 
     async addGame (payload: any) {
