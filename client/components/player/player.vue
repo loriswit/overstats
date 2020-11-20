@@ -158,6 +158,12 @@ export default Vue.extend({
         [this.games, this.placements] = await Promise.all([
           this.$axios.$get(`/users/${this.player}/games?season=${this.season}`),
           this.$axios.$get(`/users/${this.player}/placements?season=${this.season}`)])
+
+        // set queue mode according to most recent game
+        if (this.games.length) {
+          const latestGame = this.games.reduce((game, latest) => game.date > latest.date ? game : latest)
+          this.queueMode = latestGame.role === "Any" ? "oq" : "rq"
+        }
       } finally {
         this.loading = false
       }
