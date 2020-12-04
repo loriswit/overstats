@@ -1,5 +1,8 @@
 <template lang="pug">
   .container
+    .balance
+      input(id="balance" type="checkbox" v-model="balanced")
+      label(for="balance") Exclude unbalanced games
     template(v-for="stat in stats")
       .title
         h3 {{ stat.title }}
@@ -34,6 +37,7 @@ export default Vue.extend({
     } as PropOptions<any[]>
   },
   data: () => ({
+    balanced: false,
     structure: [{
       title: "Roles",
       field: "role",
@@ -57,12 +61,15 @@ export default Vue.extend({
     }]
   }),
   computed: {
-    stats () {
+    filteredGames () {
+      return this.balanced ? this.games.filter(({ balance }) => balance === "Balanced") : this.games
+    },
+    stats (this: any) {
       return this.structure.map(({ title, field, values }) => {
         const stat = {
           title,
           rows: values.map((value) => {
-            const filtered = this.games.filter(game => game[field] === value)
+            const filtered = this.filteredGames.filter(game => game[field] === value)
             const row = {
               title: value === "Any" ? "Open Queue" : value,
               count: filtered.length,
@@ -94,6 +101,20 @@ export default Vue.extend({
 .stat
   max-width: 900px
   margin: 10px auto 40px
+
+.balance
+  background-color: rgba(0, 0, 0, 0.5)
+  text-align: center
+  color: white
+  padding: 10px 0 20px
+
+  > *
+    width: initial
+    padding: 10px 15px
+    cursor: pointer
+
+    &:hover
+      color: #ffea7e
 
 table
   border-collapse: collapse
