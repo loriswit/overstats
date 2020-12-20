@@ -49,6 +49,7 @@ You can run the following scripts using `npm run`:
 
 #### Authentication
 - `GET /login`: log into an account to get an access token
+- `GET /token`: get a new token by providing an existing valid token
 
 #### Seasons
 - `GET /seasons`: list all seasons names

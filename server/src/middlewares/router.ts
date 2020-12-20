@@ -10,6 +10,7 @@ import PlacementController from "../controllers/placement"
 
 export default new Router()
     .get("/login", basicAuth(), LoginController.login)
+    .get("/token", jwtAuth(), LoginController.newToken)
 
     .get("/seasons", SeasonController.list)
 
