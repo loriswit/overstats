@@ -1,5 +1,8 @@
 import { Module, VuexModule, Mutation } from "vuex-module-decorators"
 import { $axios } from "~/utils/axios-accessor"
+import { userStore } from "~/store"
+
+let timeoutId: NodeJS.Timeout
 
 @Module({
     name: "user",
@@ -7,27 +10,66 @@ import { $axios } from "~/utils/axios-accessor"
     namespaced: true
 })
 export default class User extends VuexModule {
-  name = ""
-  token = ""
-  logged = false
+    name = ""
+    token = ""
+    logged = false
+    expiredOn = NaN
+    refreshOn = NaN
 
-  @Mutation
-  login ({ username, token }: { username: string, token: string }) {
-      this.logged = true
-      this.name = username
-      this.token = token
-      localStorage.setItem("user", username)
-      localStorage.setItem("jwt", token)
-      $axios.setToken(token, "Bearer", ["post", "put", "delete", "patch"])
-  }
+    @Mutation
+    login ({ username, token, expires }) {
+        this.logged = true
+        this.name = username
+        this.token = token
+        this.expiredOn = new Date(expires).getTime()
+        const now = new Date().getTime()
 
-  @Mutation
-  logout () {
-      this.logged = false
-      this.name = ""
-      this.token = ""
-      localStorage.removeItem("user")
-      localStorage.removeItem("jwt")
-      $axios.setToken(false)
-  }
+        $axios.setToken(token, "Bearer")
+
+        // logout when token has expired
+        const logoutDelay = this.expiredOn - now
+        if (logoutDelay <= 0) {
+            userStore.logout()
+            return
+        }
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(userStore.logout, logoutDelay)
+
+        // refresh token after half expiration time
+        const refreshOn = localStorage.getItem("ref")
+        if (refreshOn) {
+            this.refreshOn = Number.parseInt(refreshOn)
+        } else {
+            this.refreshOn = Math.floor(now + (this.expiredOn - now) / 2)
+        }
+        $axios.onRequest(async (config) => {
+            if (config.method !== "get" && this.refreshOn < new Date().getTime()) {
+                const data = { ...await $axios.$get("/token"), username: this.name }
+                userStore.logout()
+                userStore.login(data)
+            }
+            return config
+        })
+
+        localStorage.setItem("user", username)
+        localStorage.setItem("jwt", token)
+        localStorage.setItem("exp", expires)
+        localStorage.setItem("ref", this.refreshOn.toString())
+    }
+
+    @Mutation
+    logout () {
+        this.logged = false
+        this.name = ""
+        this.token = ""
+        this.expiredOn = NaN
+        this.refreshOn = NaN
+        localStorage.removeItem("user")
+        localStorage.removeItem("jwt")
+        localStorage.removeItem("exp")
+        localStorage.removeItem("ref")
+        $axios.setToken(false)
+        $axios.onRequest(() => {})
+        clearTimeout(timeoutId)
+    }
 }

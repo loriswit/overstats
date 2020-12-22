@@ -4,10 +4,11 @@ import { userStore } from "~/store"
 const init: Plugin = () => {
     const username = localStorage.getItem("user")
     const token = localStorage.getItem("jwt")
-    if (!username || !token) {
+    const expires = localStorage.getItem("exp")
+    if (!username || !token || !expires) {
         userStore.logout()
     } else {
-        userStore.login({ username, token })
+        userStore.login({ username, token, expires })
     }
 }
 
