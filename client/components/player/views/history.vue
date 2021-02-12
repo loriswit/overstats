@@ -69,7 +69,7 @@ export default Vue.extend({
   },
   data: () => ({
     roles: ["tank", "damage", "support"],
-    dayShift: -21600000, // day starts at 6:00
+    dayOffset: -25200000, // day starts at 7:00,
 
     addDialog: false
   }),
@@ -85,7 +85,10 @@ export default Vue.extend({
         const game = {} as Event
         Object.assign(game, event)
         game.date = new Date(event.date)
-        game.day = Math.floor((game.date.getTime() + this.dayShift) / 86400000)
+
+        const timezoneOffset = game.date.getTimezoneOffset() * -60000
+        game.day = Math.floor((game.date.getTime() + this.dayOffset + timezoneOffset) / 86400000)
+
         game.role = Role[event.role as keyof typeof Role]
         game.placement = event.outcome === undefined
 
@@ -135,7 +138,7 @@ export default Vue.extend({
   methods: {
     dayOf (game: Event) {
       const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" }
-      const date = new Date(game.date.getTime() + this.dayShift)
+      const date = new Date(game.date.getTime() + this.dayOffset)
       return date.toLocaleDateString("en-GB", options)
     },
     timeOf (game: Event) {
