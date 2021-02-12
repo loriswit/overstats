@@ -20,11 +20,13 @@
           option(:value="View.History") History
           option(:value="View.Chart") Progression
           option(:value="View.Stats") Statistics
+          option(:value="View.HeatMaps") Heat maps
 
     loading(v-if="loading")
     template(v-if="pageReady")
       history(v-if="view === View.History" :events="events" :role-queue="roleQueue" :editable="editable" @click-game="onGameClicked")
       stats(v-else-if="view === View.Stats" :games="games")
+      heat-maps(v-else-if="view === View.HeatMaps" :games="games")
       .chart(v-else-if="view === View.Chart")
         sr-chart(:events="events" :editable="editable" @click-game="onGameClicked")
 
@@ -45,13 +47,15 @@ import PlacementDialog from "~/components/player/dialogs/placement-dialog.vue"
 import History from "~/components/player/views/history.vue"
 import SrChart from "~/components/player/views/sr-chart.vue"
 import Stats from "~/components/player/views/stats.vue"
+import HeatMaps from "~/components/player/views/heat-maps.vue"
 
 import { userStore } from "~/store"
 
 enum View {
   History = "history",
   Chart = "chart",
-  Stats = "stats"
+  Stats = "stats",
+  HeatMaps = "heat-maps",
 }
 
 export default Vue.extend({
@@ -60,6 +64,7 @@ export default Vue.extend({
     History,
     SrChart,
     Stats,
+    HeatMaps,
     GameDialog,
     PlacementDialog,
     Loading
