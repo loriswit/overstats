@@ -1,15 +1,17 @@
 <template lang="pug">
   .container
-    .title
-      h3 Hourly games played
-    .heat-map
-      table
-        tr
-          td.day
-          th(v-for="hour in 24") {{ (hour + 6) % 24 }}:00
-        tr(v-for="(day, i) in hourlyPlayed.matrix")
-          th.day {{ days[i] }}
-          td(v-for="amount in day" :style="{ opacity: amount / hourlyPlayed.max + 0.1 }") {{ amount > 0 ? amount : "" }}
+    template(v-for="heatMap in [hourlyPlayed, dailyPlayed]")
+      .title
+        h3 {{ heatMap.title }}
+      .heat-map
+        table
+          tr
+            th
+            th(v-for="label in heatMap.labels[1]") {{ label }}
+          template(v-for="(row, i) in heatMap.matrix")
+            tr(v-if="row.some(val => val > 0)")
+              th {{ heatMap.labels[0][i] }}
+              td(v-for="val in row" :style="{ opacity: val / heatMap.max + 0.1 }") {{ val > 0 ? val : "" }}
 </template>
 
 <script lang="ts">
@@ -23,18 +25,45 @@ export default Vue.extend({
       required: true
     } as PropOptions<any[]>
   },
-  data: () => ({
-    days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-  }),
   computed: {
-    hourlyPlayed () {
-      const matrix = new Array(7).fill(0).map(() => new Array(24).fill(0))
+    hourlyPlayed (this: any) {
+      return this.generateHeatMap(
+        "Hourly games played",
+        [
+          ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+          Array.from({ length: 24 }, (_, i) => (i + 7) % 24).map(h => h + ":00")
+        ],
+        date => (date.getDay() + 6) % 7,
+        date => (date.getHours() + 17) % 24
+      )
+    },
+    dailyPlayed (this: any) {
+      return this.generateHeatMap(
+        "Daily games played",
+        [
+          [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+          ],
+          Array.from({ length: 31 }, (_, i) => i + 1)
+        ],
+        date => date.getMonth(),
+        date => date.getDate() - 1
+      )
+    }
+  },
+  methods: {
+    generateHeatMap (title, labels: [Array<any>, Array<any>], x: (d: Date) => number, y: (d: Date) => number) {
+      const height = labels[0].length
+      const width = labels[1].length
+      const matrix = new Array(height).fill(0).map(() => new Array(width).fill(0))
+
       for (const game of this.games) {
         const date = new Date(game.date)
-        ++matrix[(date.getDay() + 6) % 7][(date.getHours() + 17) % 24]
+        ++matrix[x(date)][y(date)]
       }
 
-      return { matrix, max: Math.max(...matrix.flat()) }
+      return { title, labels, matrix, max: Math.max(...matrix.flat()) }
     }
   }
 })
@@ -68,4 +97,7 @@ table
 
   td
     font-family: Manrope, sans-serif
+    background-color: rgba(255, 255, 255, 0.1)
+    text-shadow: 0 0 20px white
+
 </style>
