@@ -29,7 +29,7 @@
 import Vue, { PropOptions } from "vue"
 
 export default Vue.extend({
-  name: "Stats",
+  name: "WinRate",
   props: {
     games: {
       type: Array,
