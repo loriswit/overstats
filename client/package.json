@@ -12,25 +12,26 @@
     "install": "npm run build"
   },
   "dependencies": {
-    "@nuxt/typescript-runtime": "^0.4.10",
-    "@nuxtjs/axios": "^5.12.2",
+    "@nuxt/typescript-runtime": "^2.0.1",
+    "@nuxtjs/axios": "^5.13.1",
     "@nuxtjs/dotenv": "^1.4.0",
     "@nuxtjs/style-resources": "^1.0.0",
-    "chart.js": "^2.9.3",
-    "nuxt": "^2.14.7",
+    "chart.js": "^2.9.4",
+    "nuxt": "^2.15.0",
     "vue-chartjs": "^3.5.1",
-    "vuex-module-decorators": "^0.17.0"
+    "vuex-module-decorators": "^1.0.1"
   },
   "devDependencies": {
-    "@nuxt/typescript-build": "^0.6.7",
-    "@nuxtjs/eslint-config-typescript": "^1.0.0",
-    "@nuxtjs/eslint-module": "^1.0.0",
+    "@nuxt/types": "^2.15.0",
+    "@nuxt/typescript-build": "^2.0.4",
+    "@nuxtjs/eslint-config-typescript": "^5.0.0",
+    "@nuxtjs/eslint-module": "^3.0.2",
     "babel-eslint": "^10.0.1",
-    "eslint": "^6.1.0",
-    "eslint-plugin-nuxt": "^1.0.0",
-    "node-sass": "^4.14.1",
-    "pug": "^2.0.4",
-    "pug-plain-loader": "^1.0.0",
-    "sass-loader": "^8.0.2"
+    "eslint": "^7.20.0",
+    "eslint-plugin-nuxt": "^2.0.0",
+    "node-sass": "^5.0.0",
+    "pug": "^3.0.0",
+    "pug-plain-loader": "^1.1.0",
+    "sass-loader": "^10.1.1"
   }
 }
