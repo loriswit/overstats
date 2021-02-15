@@ -85,9 +85,9 @@ export default Vue.extend({
           }).filter(stat => stat.count).sort((a, b) => b.winRate - a.winRate)
         }
         const total = { title: "Total", count: 0, victories: 0, defeats: 0, draws: 0, winRate: 0 }
-        ;["count", "victories", "defeats", "draws"].map((field) => {
+        for (const field of ["count", "victories", "defeats", "draws"]) {
           total[field] = stat.rows.reduce((acc, row) => acc + row[field], 0)
-        })
+        }
         total.winRate = total.victories / (total.victories + total.defeats)
         stat.rows.push(total)
         return stat

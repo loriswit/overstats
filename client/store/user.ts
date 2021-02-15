@@ -1,8 +1,8 @@
-import { Module, VuexModule, Mutation } from "vuex-module-decorators"
+import { Module, Mutation, VuexModule } from "vuex-module-decorators"
 import { $axios } from "~/utils/axios-accessor"
 import { userStore } from "~/store"
 
-let timeoutId: NodeJS.Timeout
+let timeoutId: number
 
 @Module({
     name: "user",
@@ -32,8 +32,8 @@ export default class User extends VuexModule {
             userStore.logout()
             return
         }
-        clearTimeout(timeoutId)
-        timeoutId = setTimeout(userStore.logout, logoutDelay)
+        window.clearTimeout(timeoutId)
+        timeoutId = window.setTimeout(userStore.logout, logoutDelay)
 
         // refresh token after half expiration time
         const refreshOn = localStorage.getItem("ref")
@@ -70,6 +70,6 @@ export default class User extends VuexModule {
         localStorage.removeItem("ref")
         $axios.setToken(false)
         $axios.onRequest(() => {})
-        clearTimeout(timeoutId)
+        window.clearTimeout(timeoutId)
     }
 }

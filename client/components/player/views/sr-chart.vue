@@ -59,10 +59,7 @@ export default Vue.extend({
           }
         },
         hover: {
-          onHover: this.editable ? function (this: Chart, event: any) {
-            const points = this.getElementAtEvent(event)
-            event.target.style.cursor = points.length ? "pointer" : "default"
-          } : undefined
+          onHover: this.editable ? this.onHover : undefined
         }
       }
     }
@@ -105,6 +102,10 @@ export default Vue.extend({
       const i = event[0]._index
       const id = this.datasets[di].data[i].id
       this.$emit("click-game", id)
+    },
+    onHover (this: Chart, event: any) {
+      const points = this.getElementAtEvent(event)
+      event.target.style.cursor = points.length ? "pointer" : "default"
     }
   }
 })

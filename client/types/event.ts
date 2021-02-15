@@ -1,3 +1,7 @@
+enum Role {
+    Tank, Damage, Support, Any
+}
+
 interface Event {
     id: string,
     date: Date,
@@ -10,10 +14,6 @@ interface Event {
     balance: string | undefined
     outcome: string | undefined
     ranked: boolean | undefined
-}
-
-enum Role {
-    Tank, Damage, Support, Any
 }
 
 export { Event, Role }

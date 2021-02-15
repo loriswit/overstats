@@ -46,6 +46,9 @@ export default Vue.extend({
       error: ""
     }
   }),
+  head: () => ({
+    title: "Login"
+  }),
   beforeCreate () {
     if (userStore.logged) {
       this.$router.replace("/" + userStore.name.toLowerCase())
@@ -88,10 +91,7 @@ export default Vue.extend({
       const data = await this.$axios.$get("/login", { auth: { username, password } })
       userStore.login(data)
     }
-  },
-  head: () => ({
-    title: "Login"
-  })
+  }
 })
 </script>
 
