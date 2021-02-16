@@ -1,6 +1,7 @@
 import { Context } from "koa"
 import GameModel, { Game } from "../models/game"
 import PlacementModel from "../models/placement"
+import { Season } from "../models/event"
 
 export default class GameController {
 
@@ -16,7 +17,7 @@ export default class GameController {
     public static async readAll(ctx: Context) {
         const filter = { user: ctx.user } as Game
         if (ctx.request.query.season) {
-            filter.season = ctx.request.query.season
+            filter.season = ctx.request.query.season as Season
         }
 
         const games = await GameModel.find(filter).exec()
