@@ -1,7 +1,6 @@
 <script lang="ts">
 import { Line } from "vue-chartjs"
 import Vue, { PropOptions } from "vue"
-import Chart from "chart.js"
 import { Event } from "~/types/event"
 
 export default Vue.extend({
@@ -103,8 +102,8 @@ export default Vue.extend({
       const id = this.datasets[di].data[i].id
       this.$emit("click-game", id)
     },
-    onHover (this: Chart, event: any) {
-      const points = this.getElementAtEvent(event)
+    onHover (event: any) {
+      const points = this.$data._chart.getElementAtEvent(event)
       event.target.style.cursor = points.length ? "pointer" : "default"
     }
   }
