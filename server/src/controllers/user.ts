@@ -40,6 +40,19 @@ export default class UserController {
 
     public static async read(ctx: Context) {
         ctx.body = ctx.user.export()
+
+        const seasons = await GameModel.aggregate([
+            {
+                $group: {
+                    _id: "$season",
+                    games: { $sum: 1 },
+                    sr: { $max: "$sr" },
+                    date: { $max: "$date" }
+                }
+            }
+        ]).sort("date")
+
+        ctx.body.seasons = seasons.map(({_id, games, sr}) => ({name: _id, games, sr}))
     }
 
     public static async delete(ctx: Context) {
