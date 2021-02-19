@@ -52,7 +52,11 @@ export default class UserController {
             }
         ]).sort("date")
 
-        ctx.body.seasons = seasons.map(({_id, games, sr}) => ({name: _id, games, sr}))
+        ctx.body.seasons = seasons.map(({ _id, games, sr }) => ({
+            name: _id,
+            games,
+            sr: sr ? sr : undefined
+        }))
     }
 
     public static async delete(ctx: Context) {

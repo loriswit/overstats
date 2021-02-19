@@ -1,6 +1,8 @@
 import request from "supertest"
 import app from "../src/app"
 import { makeTokenFor } from "./helpers"
+import GameModel from "../src/models/game"
+import UserModel from "../src/models/user"
 
 describe("create users", () => {
 
@@ -58,13 +60,39 @@ describe("read users", () => {
     test("read existing user", async () => {
         const response = await request(app.callback()).get("/users/test")
         expect(response.status).toBe(200)
-        expect(response.body).toEqual({ name: "Test" })
+        expect(response.body).toEqual({ name: "Test", seasons: [] })
     })
 
     test("read existing user with BattleTag", async () => {
         const response = await request(app.callback()).get("/users/testbt")
         expect(response.status).toBe(200)
-        expect(response.body).toEqual({ battleTag: "Test#1234", name: "TestBT" })
+        expect(response.body).toEqual({ battleTag: "Test#1234", name: "TestBT", seasons: [] })
+    })
+
+    test("read existing user with played games", async () => {
+        const user = await UserModel.findOne({ name: "Test" })
+        await new GameModel({
+            season: "Season 3", date: new Date(), outcome: "Defeat",
+            role: "Tank", map: "Busan", user: user?._id
+        }).save()
+        await new GameModel({
+            season: "Season 3", date: new Date(), outcome: "Draw",
+            role: "Damage", map: "Oasis", user: user?._id, sr: 1000
+        }).save()
+        await new GameModel({
+            season: "Season 12", date: new Date(), outcome: "Victory",
+            role: "Any", map: "Nepal", user: user?._id
+        }).save()
+
+        const response = await request(app.callback()).get("/users/test")
+        expect(response.status).toBe(200)
+        expect(response.body).toEqual({
+            name: "Test",
+            seasons: [
+                { name: "Season 3", games: 2, sr: 1000 },
+                { name: "Season 12", games: 1 }
+            ]
+        })
     })
 })
 
