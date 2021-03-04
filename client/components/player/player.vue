@@ -2,11 +2,7 @@
   .container
     header
       .player
-        img.icon(v-if="icon" :src="icon")
-        h1 {{ profile.name }}
-        .battle-tag(v-if="profile.battleTag")
-          span {{ profile.battleTag.split("#")[0] }}
-          span.tag {{ "#" + profile.battleTag.split("#")[1] }}
+        profile(:player="player")
         .count(v-if="!loading") {{ games.length }} game{{ games.length === 1 ? "" : "s" }}
       .actions
         button(v-if="editable && season" @click="addGameDialog = true") Add game
@@ -50,6 +46,7 @@ import WinRate from "~/components/player/views/win-rates.vue"
 import HeatMaps from "~/components/player/views/heat-maps.vue"
 
 import { userStore } from "~/store"
+import Profile from "~/components/player/profile.vue"
 
 enum View {
   History = "history",
@@ -61,6 +58,7 @@ enum View {
 export default Vue.extend({
   name: "Player",
   components: {
+    Profile,
     History,
     SrChart,
     WinRate,
@@ -79,9 +77,6 @@ export default Vue.extend({
     season: "",
     seasons: [],
     queueMode: "rq",
-
-    profile: {} as any,
-    icon: null,
 
     View,
     view: View.History,
@@ -148,8 +143,6 @@ export default Vue.extend({
     }
   },
   async created (this: any) {
-    this.fetchProfile()
-
     await this.fetchSeasons()
     this.season = this.seasons[0]
     await this.fetchGames()
@@ -179,13 +172,6 @@ export default Vue.extend({
         this.seasons = (await this.$axios.$get("seasons")).reverse()
       } finally {
         this.loading = false
-      }
-    },
-    async fetchProfile () {
-      this.profile = await this.$axios.$get(`/users/${this.player}`)
-      if (this.profile.battleTag) {
-        const tag = this.profile.battleTag.replace("#", "-")
-        this.icon = (await this.$axios.$get(`https://ow-api.com/v1/stats/pc/us/${tag}/profile`)).icon
       }
     },
 
@@ -252,11 +238,6 @@ export default Vue.extend({
         }
       }
     }
-  },
-  head () {
-    return {
-      title: this.profile.name
-    }
   }
 })
 </script>
@@ -277,27 +258,6 @@ header
   .player
     display: flex
     align-items: baseline
-
-    .icon
-      width: 48px
-      margin-right: 16px
-
-    h1
-      font-family: BigNoodleTooOblique, sans-serif
-      letter-spacing: 1px
-      font-size: 4em
-      color: white
-
-    .battle-tag
-      font-family: BigNoodleTooOblique, sans-serif
-      letter-spacing: 1px
-      font-size: 2.5em
-      color: lightblue
-      margin-left: 20px
-
-      .tag
-        font-size: 0.7em
-        color: rgba(173, 216, 230, 0.6)
 
     .count
       text-transform: uppercase
