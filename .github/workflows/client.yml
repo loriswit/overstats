@@ -13,12 +13,11 @@ jobs:
 
       - uses: actions/setup-node@v1
         with:
-          node-version: 14.x
+          node-version: 16.x
 
-      - working-directory: client
-        run: |
+      - run: |
           npm ci
-          npm run build
+          npm run build -w @overstats/client
 
   lint:
     runs-on: ubuntu-latest
@@ -27,9 +26,8 @@ jobs:
 
       - uses: actions/setup-node@v1
         with:
-          node-version: 14.x
+          node-version: 16.x
 
-      - working-directory: client
-        run: |
+      - run: |
           npm ci
-          npm run lint
+          npm run lint -w @overstats/client

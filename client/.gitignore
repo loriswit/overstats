@@ -1,15 +1,2 @@
-# node dependencies
-node_modules/
-
 # build files
 .nuxt/
-dist/
-
-# local environment variables
-.env
-
-# IDE directories
-.idea/
-.vscode/
-
-.DS_Store

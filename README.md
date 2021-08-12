@@ -1,6 +1,18 @@
 # Overstats
 A small web application that displays history and statistics of your ranked games in [Overwatch](https://playoverwatch.com).
 
+## Setup
+
+Install the dependencies.
+```shell
+npm install
+```
+
+Start development servers parallelly for both the client and server:
+```shell
+npm run dev
+```
+
 ## Client
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/loriswit/overstats/Client%20CI)](https://github.com/loriswit/overstats/actions?query=workflow%3A%22Client+CI%22)
@@ -15,26 +27,21 @@ A small web application that displays history and statistics of your ranked game
 
 ### Installation
 
-Clone the repository and navigate to the *client* directory.
-```sh
-cd client
-```
-
-Define the API_URL environment variable (during development, define NUXT_HOST and NUXT_PORT as well).
+Define the `API_URL` environment variable (during development, define `NUXT_HOST` and `NUXT_PORT` as well).
 ```sh
 export API_URL=http://host:port
 ```
 
-Install dependencies and build the client into the *dist* directory.
+Build the client into the *dist* directory.
 ```sh
-npm install
+npm run build -w @overstats/client
 ```
 
 You can then start a web server in the *dist* directory and start using the client.
 
 ### Development
 
-You can run the following scripts using `npm run`:
+The following scripts are available in the client workspace:
 - `dev`: start a development server
 - `lint`: check for code quality and coding style
 - `lint:fix`: fix coding styles issues
@@ -75,11 +82,6 @@ You can run the following scripts using `npm run`:
 
 ### Installation
 
-Clone the repository and navigate to the *server* directory.
-```sh
-cd server
-```
-
 Define the following environment variables appropriately.
 ```sh
 export PORT=3000
@@ -88,19 +90,19 @@ export JWT_SECRET=secret
 export JWT_EXPIRE_AFTER=3600
 ```
 
-Install dependencies and build the server.
+Build the server.
 ```sh
-npm install
+npm run build -w @overstats/server
 ```
 
 Start the server.
 ```sh
-npm start
+npm start -w @overstats/server
 ```
 
 ### Development
 
-You can run the following scripts using `npm run`:
+The following scripts are available in the server workspace:
 - `dev`: start a development server
 - `lint`: check for code quality and coding style
 - `lint:fix`: fix coding styles issues
