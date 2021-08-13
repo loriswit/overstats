@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
-    "@typegoose/typegoose": "^7.4.8",
+    "@typegoose/typegoose": "^8.1.1",
     "basic-auth": "^2.0.1",
     "bcrypt": "^5.0.0",
     "dotenv": "^8.2.0",
@@ -34,7 +34,6 @@
     "@types/koa-bodyparser": "^4.3.0",
     "@types/koa-logger": "^3.1.1",
     "@types/koa-router": "^7.4.1",
-    "@types/mongoose": "^5.10.3",
     "@types/node": "^14.14.28",
     "@types/supertest": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
