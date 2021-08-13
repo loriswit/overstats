@@ -25,12 +25,7 @@ export default {
 
     plugins: ["~/plugins/axios-init.ts", "~/plugins/store-init.ts"],
 
-    buildModules: ["@nuxt/typescript-build", "@nuxtjs/style-resources"],
-    styleResources: {
-        sass: ["./assets/styles/*.sass"]
-    },
-    modules: [
-        "@nuxtjs/axios",
-        "@nuxtjs/dotenv"
-    ]
+    buildModules: ["@nuxt/typescript-build", "@nuxtjs/style-resources", "@nuxt/postcss8"],
+    styleResources: { sass: ["./assets/styles/*.sass"] },
+    modules: ["@nuxtjs/axios", "@nuxtjs/dotenv"]
 }
