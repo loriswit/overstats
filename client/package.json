@@ -8,8 +8,7 @@
     "build": "nuxt-ts build",
     "generate": "nuxt-ts generate",
     "lint": "eslint --ext .ts,.vue --ignore-path .gitignore .",
-    "lint:fix": "npm run lint -- --fix",
-    "install": "npm run build"
+    "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
     "@nuxt/typescript-runtime": "^2.0.1",

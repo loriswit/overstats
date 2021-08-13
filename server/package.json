@@ -6,7 +6,6 @@
     "start": "node -r dotenv/config dist/server.js",
     "dev": "tsnd --no-notify --transpile-only -r dotenv/config src/server.ts",
     "build": "tsc",
-    "install": "npm run build",
     "lint": "eslint --ext .ts --ignore-path .gitignore src/",
     "lint:fix": "npm run lint -- --fix",
     "test": "jest --config jest.config.json",
