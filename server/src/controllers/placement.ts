@@ -39,7 +39,7 @@ export default class PlacementController {
             ctx.status = 201
 
         } catch (err) {
-            if (err.name === "MongoError" && err.code === 11000) {
+            if (err.name === "MongoServerError" && err.code === 11000) {
                 ctx.throw(409, "A " + placement.role + " placement rank already exists")
             } else {
                 throw err

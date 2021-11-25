@@ -52,7 +52,7 @@ export default class GameController {
             ctx.status = 201
 
         } catch (err) {
-            if (err.name === "MongoError" && err.code === 11000) {
+            if (err.name === "MongoServerError" && err.code === 11000) {
                 ctx.throw(409, "There is already a game on " + game.date.toLocaleString())
             } else {
                 throw err

@@ -30,7 +30,7 @@ export default class UserController {
             ctx.body = user.export()
             ctx.status = 201
         } catch (err) {
-            if (err.name === "MongoError" && err.code === 11000) {
+            if (err.name === "MongoServerError" && err.code === 11000) {
                 ctx.throw(409, "User name is already taken: " + user.name)
             } else {
                 throw err

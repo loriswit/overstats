@@ -8,7 +8,7 @@ export default function () {
         } catch (err) {
             if (err instanceof Error.ValidationError) {
                 ctx.throw(422, err)
-            } else if (err instanceof Error || err.name === "MongoError") {
+            } else if (err instanceof Error || err.name === "MongoServerError") {
                 ctx.throw(400, err)
             } else {
                 ctx.throw(500, err)

@@ -6,11 +6,7 @@ if (process.env.NODE_ENV == "development") {
 }
 
 const uri = process.env.MONGODB_URI ?? "mongodb://localhost/overstats"
-mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true
-})
+mongoose.connect(uri)
     .then(() => {
         const port = (process.env.PORT ?? 3000) as number
         app.listen(port)
