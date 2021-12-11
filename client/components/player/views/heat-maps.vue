@@ -33,7 +33,7 @@ export default Vue.extend({
           ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
           Array.from({ length: 24 }, (_, i) => (i + 7) % 24).map(h => h + ":00")
         ],
-        date => (date.getDay() + 6) % 7,
+        date => (date.getDay() + (date.getHours() < 7 ? 5 : 6)) % 7,
         date => (date.getHours() + 17) % 24
       )
     },
