@@ -41,6 +41,8 @@ export enum Season {
     S28 = "Season 28",
     S29 = "Season 29",
     S30 = "Season 30",
+    S31 = "Season 31",
+    S32 = "Season 32",
 }
 
 export interface Event extends Base {
