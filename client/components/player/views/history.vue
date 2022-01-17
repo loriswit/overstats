@@ -137,12 +137,12 @@ export default Vue.extend({
   },
   methods: {
     dayOf (game: Event) {
-      const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" }
+      const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" } as const
       const date = new Date(game.date.getTime() + this.dayOffset)
       return date.toLocaleDateString("en-GB", options)
     },
     timeOf (game: Event) {
-      const options = { hourCycle: "h23", hour: "numeric", minute: "numeric" }
+      const options = { hourCycle: "h23", hour: "numeric", minute: "numeric" } as const
       return game.date.toLocaleTimeString("en-GB", options)
     },
     editGame (id: string) {

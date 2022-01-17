@@ -2,6 +2,7 @@ import { Context } from "koa"
 import GameModel, { Game } from "../models/game"
 import PlacementModel from "../models/placement"
 import { Season } from "../models/event"
+import { isDbError } from "../utils/is-db-error"
 
 export default class GameController {
 
@@ -52,7 +53,7 @@ export default class GameController {
             ctx.status = 201
 
         } catch (err) {
-            if (err.name === "MongoServerError" && err.code === 11000) {
+            if (isDbError(err) && err.code === 11000) {
                 ctx.throw(409, "There is already a game on " + game.date.toLocaleString())
             } else {
                 throw err

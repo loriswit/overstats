@@ -28,7 +28,9 @@
     "semi": [
       "error",
       "never"
-    ]
+    ],
+    // TS 4.5 imports are not supported yet
+    "import/named": "off"
   },
   "overrides": [
     {

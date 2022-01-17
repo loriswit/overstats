@@ -31,6 +31,7 @@
 <script lang="ts">
 import Vue from "vue"
 import { userStore } from "~/store"
+import { HttpError } from "~/plugins/axios-init"
 
 export default Vue.extend({
   data: () => ({
@@ -61,11 +62,13 @@ export default Vue.extend({
         await this.logUser(this.log.user, this.log.pass)
         this.$router.push("/" + userStore.name.toLowerCase())
       } catch (err) {
-        if (err.status === 401) {
-          this.log.error = "Wrong credentials"
-        } else {
-          this.log.error = err.response.data
-        }
+        if (err instanceof HttpError) {
+          if (err.status === 401) {
+            this.log.error = "Wrong credentials"
+          } else {
+            this.log.error = err.message
+          }
+        } else { throw err }
       }
     },
     async register () {
@@ -80,7 +83,7 @@ export default Vue.extend({
         await this.logUser(this.reg.user, this.reg.pass)
         this.$router.push("/" + userStore.name.toLowerCase())
       } catch (err) {
-        if (err.status === 409) {
+        if (err instanceof HttpError && err.status === 409) {
           this.reg.error = "Username not available"
         } else {
           throw err

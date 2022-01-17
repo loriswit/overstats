@@ -1,8 +1,9 @@
 import { Context } from "koa"
-import UserModel from "../models/user"
+import UserModel, { User } from "../models/user"
 import bcrypt from "bcrypt"
 import GameModel from "../models/game"
 import PlacementModel from "../models/placement"
+import { isDbError } from "../utils/is-db-error"
 
 export default class UserController {
 
@@ -30,7 +31,7 @@ export default class UserController {
             ctx.body = user.export()
             ctx.status = 201
         } catch (err) {
-            if (err.name === "MongoServerError" && err.code === 11000) {
+            if (isDbError(err) && err.code === 11000) {
                 ctx.throw(409, "User name is already taken: " + user.name)
             } else {
                 throw err
@@ -39,7 +40,13 @@ export default class UserController {
     }
 
     public static async read(ctx: Context) {
-        ctx.body = ctx.user.export()
+        interface PlayedSeason {
+            name: string,
+            games: number,
+            sr?: number
+        }
+
+        const userWithSeasons = ctx.user.export() as User & { seasons: PlayedSeason[] }
 
         const seasons = await GameModel.aggregate([
             {
@@ -49,14 +56,19 @@ export default class UserController {
                     sr: { $max: "$sr" },
                     date: { $max: "$date" }
                 }
+            },
+            {
+                $sort: { "date": 1 }
             }
-        ]).sort("date")
+        ])
 
-        ctx.body.seasons = seasons.map(({ _id, games, sr }) => ({
+        userWithSeasons.seasons = seasons.map(({ _id, games, sr }) => ({
             name: _id,
             games,
             sr: sr ? sr : undefined
         }))
+
+        ctx.body = userWithSeasons
     }
 
     public static async delete(ctx: Context) {

@@ -2,6 +2,7 @@ import { Context } from "koa"
 import PlacementModel, { Placement } from "../models/placement"
 import GameModel from "../models/game"
 import { Season } from "../models/event"
+import { isDbError } from "../utils/is-db-error"
 
 export default class PlacementController {
 
@@ -39,7 +40,7 @@ export default class PlacementController {
             ctx.status = 201
 
         } catch (err) {
-            if (err.name === "MongoServerError" && err.code === 11000) {
+            if (isDbError(err) && err.code === 11000) {
                 ctx.throw(409, "A " + placement.role + " placement rank already exists")
             } else {
                 throw err
