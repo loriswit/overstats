@@ -17,6 +17,7 @@
           option(:value="View.Chart") Progression
           option(:value="View.WinRate") Win rates
           option(:value="View.HeatMaps") Heat maps
+          option(:value="View.Streaks") Streaks
 
     loading(v-if="loading")
     template(v-if="pageReady")
@@ -25,6 +26,7 @@
       heat-maps(v-else-if="view === View.HeatMaps" :games="games")
       .chart(v-else-if="view === View.Chart")
         sr-chart(:events="events" :editable="editable" @click-game="onGameClicked")
+      streaks(v-else-if="view === View.Streaks" :games="games" :multiple-seasons="!season.length")
 
     template(v-if="editable")
       game-dialog(v-model="addGameDialog" :ranked-roles="rankedRoles" :role-queue="roleQueue" @submit="addGame")
@@ -44,6 +46,7 @@ import History from "~/components/player/views/history.vue"
 import SrChart from "~/components/player/views/sr-chart.vue"
 import WinRate from "~/components/player/views/win-rates.vue"
 import HeatMaps from "~/components/player/views/heat-maps.vue"
+import Streaks from "~/components/player/views/streaks.vue"
 
 import { userStore } from "~/store"
 import Profile from "~/components/player/profile.vue"
@@ -53,6 +56,7 @@ enum View {
   Chart = "chart",
   WinRate = "win-rate",
   HeatMaps = "heat-maps",
+  Streaks = "streaks",
 }
 
 export default Vue.extend({
@@ -63,6 +67,7 @@ export default Vue.extend({
     SrChart,
     WinRate,
     HeatMaps,
+    Streaks,
     GameDialog,
     PlacementDialog,
     Loading
