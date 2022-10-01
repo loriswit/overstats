@@ -60,7 +60,7 @@ export default Vue.extend({
 
 @font-face
   font-family: BigNoodleTooOblique
-  src: url("https://us.battle.net/forums/static/fonts/bignoodletoo/bignoodletoo.woff") format("woff")
+  src: url("~/assets/fonts/bignoodletoo.woff") format("woff")
 
 html
   font-family: Raleway, sans-serif
