@@ -20,7 +20,7 @@
       .field
         label(for="map") Map
         select#map(v-model="map" required)
-          option(v-for="m in maps" :value="m") {{ m }}
+          option(v-for="m in availableMaps" :value="m") {{ m }}
 
       .field
         label(for="balance") Balance
@@ -76,6 +76,10 @@ export default Vue.extend({
       type: Boolean,
       required: false,
       default: true
+    },
+    version: {
+      type: Number,
+      required: true
     }
   },
   data: () => ({
@@ -90,29 +94,41 @@ export default Vue.extend({
     roles: ["Tank", "Damage", "Support"],
     role: "Tank",
 
-    maps: [
-      "Blizzard World",
-      "Busan",
-      "Dorado",
-      "Eichenwalde",
-      "Hanamura",
-      "Havana",
-      "Hollywood",
-      "Horizon Lunar Colony",
-      "Ilios",
-      "Junkertown",
-      "King's Row",
-      "Lijiang Tower",
-      "Nepal",
-      "Numbani",
-      "Oasis",
-      "Paris",
-      "Rialto",
-      "Route 66",
-      "Temple of Anubis",
-      "Volskaya Industries",
-      "Watchpoint: Gibraltar"
-    ],
+    maps: {
+      common: [
+        "Blizzard World",
+        "Busan",
+        "Dorado",
+        "Eichenwalde",
+        "Havana",
+        "Hollywood",
+        "Ilios",
+        "Junkertown",
+        "King's Row",
+        "Lijiang Tower",
+        "Nepal",
+        "Numbani",
+        "Oasis",
+        "Rialto",
+        "Route 66",
+        "Watchpoint: Gibraltar"
+      ],
+      ow1: [
+        "Hanamura",
+        "Horizon Lunar Colony",
+        "Paris",
+        "Temple of Anubis",
+        "Volskaya Industries"
+      ],
+      ow2: [
+        "Circuit Royal",
+        "Colosseo",
+        "Esperança",
+        "Midtown",
+        "New Queen Street",
+        "Paraíso"
+      ]
+    },
     map: "",
 
     balances: [
@@ -143,6 +159,9 @@ export default Vue.extend({
     },
     needOutcome (): boolean {
       return !this.ranked || !this.rankedRoles[this.role]
+    },
+    availableMaps (): string[] {
+      return this.maps.common.concat(this.version === 1 ? this.maps.ow1 : this.maps.ow2).sort()
     }
   },
   watch: {

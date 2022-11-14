@@ -9,10 +9,10 @@
         select(v-model="season" @change="fetchGames")
           option(value="") All seasons
           option(v-for="s in seasons" :value="s") {{ s }}
-        select(v-if="seasonNumber > 22 && view === View.History" v-model="queueMode")
+        select(v-if="multiQueue && view === View.History" v-model="queueMode")
           option(value="rq") Role Queue
           option(value="oq") Open Queue
-        select(v-model="view")
+        select(v-if="games.length" v-model="view")
           option(:value="View.History") History
           option(:value="View.Chart") Progression
           option(:value="View.WinRate") Win rates
@@ -29,9 +29,9 @@
       streaks(v-else-if="view === View.Streaks" :games="games" :multiple-seasons="!season.length")
 
     template(v-if="editable")
-      game-dialog(v-model="addGameDialog" :ranked-roles="rankedRoles" :role-queue="roleQueue" @submit="addGame")
+      game-dialog(v-model="addGameDialog" :ranked-roles="rankedRoles" :role-queue="roleQueue" :version="gameVersion" @submit="addGame")
       placement-dialog(v-model="placementRequired.dialog" :role="placementRequired.role" @submit="addPlacement")
-      game-dialog(v-model="updateGameDialog" :update="targetGame" :role-queue="roleQueue" @submit="updateGame" @delete="deleteGame")
+      game-dialog(v-model="updateGameDialog" :update="targetGame" :role-queue="roleQueue" :version="gameVersion" @submit="updateGame" @delete="deleteGame")
       placement-dialog(v-model="updatePlacementDialog" :update="targetPlacement" @submit="updatePlacement")
 </template>
 
@@ -102,6 +102,9 @@ export default Vue.extend({
     targetPlacement: { id: 0 }
   }),
   computed: {
+    gameVersion (): number {
+      return this.season.startsWith("OW2") ? 2 : 1
+    },
     seasonNumber (): number {
       if (this.season === "") {
         return Number.MAX_VALUE
@@ -109,10 +112,14 @@ export default Vue.extend({
       if (this.season === "Role Queue Beta") {
         return 17.5
       }
-      return parseInt(this.season.slice(7))
+      return parseInt(this.season.slice(this.gameVersion === 1 ? 7 : 13))
+    },
+    multiQueue (): boolean {
+      // true if current season has both open queue and role queue
+      return this.seasonNumber > 22 || this.gameVersion > 1
     },
     roleQueue (this: any): boolean {
-      if (this.seasonNumber > 22) {
+      if (this.multiQueue) {
         return this.queueMode === "rq"
       }
 
@@ -128,6 +135,11 @@ export default Vue.extend({
       // determine which roles are done with their placement games
       const roles = { Tank: false, Damage: false, Support: false, Any: false } as { [index: string]: boolean }
 
+      // in ow2, we consider every game as placement games
+      if (this.gameVersion === 2) {
+        return roles
+      }
+
       for (const role in roles) {
         if (this.games.filter(g => g.ranked).concat(this.placements).find(e => e.role === role)) {
           roles[role] = true
@@ -138,8 +150,22 @@ export default Vue.extend({
     placementRequired () {
       // open placement dialog when enough placement games found
       for (const [role, required] of [["Tank", 5], ["Damage", 5], ["Support", 5], ["Any", 10]]) {
-        if (!this.placements.find(p => p.role === role)) {
-          if (this.games.filter(g => g.role === role && !g.ranked).length >= required) {
+        if (this.gameVersion === 1) {
+          if (!this.placements.find(p => p.role === role)) {
+            const placementGames = this.games.filter(g => g.role === role && !g.ranked)
+            if (placementGames.length >= required) {
+              return { dialog: true, role }
+            }
+          }
+        } else if (this.gameVersion === 2) {
+          // in ow2, placement after 7 wins or 20 losses
+          const placement = this.latestEvent(this.placements.filter(p => p.role === role))
+          const placementGames = this.games.filter(g => g.role === role && g.date > (placement?.date ?? "0"))
+          const { victories, defeats } = placementGames.reduce(({ victories, defeats }, game) => ({
+            victories: victories + (game.outcome === "Victory" ? 1 : 0),
+            defeats: defeats + (game.outcome === "Defeat" ? 1 : 0)
+          }), { victories: 0, defeats: 0 })
+          if (victories >= 7 || defeats >= 20) {
             return { dialog: true, role }
           }
         }
@@ -164,7 +190,7 @@ export default Vue.extend({
 
         // set queue mode according to most recent game
         if (this.games.length) {
-          const latestGame = this.games.reduce((game, latest) => game.date > latest.date ? game : latest)
+          const latestGame = this.latestEvent(this.games)
           this.queueMode = latestGame.role === "Any" ? "oq" : "rq"
         }
       } finally {
@@ -242,6 +268,12 @@ export default Vue.extend({
           this.updatePlacementDialog = true
         }
       }
+    },
+    latestEvent (events: any[]) {
+      if (!events.length) {
+        return null
+      }
+      return events.reduce((latest, event) => event.date > latest.date ? event : latest)
     }
   }
 })

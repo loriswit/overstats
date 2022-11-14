@@ -53,11 +53,15 @@ export default Vue.extend({
     }, {
       title: "Escort maps",
       field: "map",
-      values: ["Dorado", "Havana", "Junkertown", "Rialto", "Route 66", "Watchpoint: Gibraltar"]
+      values: ["Circuit Royal", "Dorado", "Havana", "Junkertown", "Rialto", "Route 66", "Watchpoint: Gibraltar"]
     }, {
       title: "Hybrid maps",
       field: "map",
-      values: ["Blizzard World", "Eichenwalde", "Hollywood", "King's Row", "Numbani"]
+      values: ["Blizzard World", "Eichenwalde", "Hollywood", "King's Row", "Midtown", "Numbani", "Paraíso"]
+    }, {
+      title: "Push maps",
+      field: "map",
+      values: ["Colosseo", "Esperança", "New Queen Street"]
     }]
   }),
   computed: {
@@ -91,7 +95,7 @@ export default Vue.extend({
         total.winRate = total.victories / (total.victories + total.defeats)
         stat.rows.push(total)
         return stat
-      })
+      }).filter(stat => stat.rows.length > 1) // skip if only row is total
     }
   }
 })

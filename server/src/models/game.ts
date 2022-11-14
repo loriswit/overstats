@@ -1,12 +1,16 @@
 import { getModelForClass, mongoose, pre, prop, ReturnModelType } from "@typegoose/typegoose"
 import { Event } from "./event"
 import PlacementModel from "./placement"
+import { getGameVersion } from "../utils/game-version"
 
 export enum GameMap {
     BlizzardWorld = "Blizzard World",
     Busan = "Busan",
+    CircuitRoyal = "Circuit Royal",
+    Colosseo = "Colosseo",
     Dorado = "Dorado",
     Eichenwalde = "Eichenwalde",
+    Esperanca = "Esperança",
     Hanamura = "Hanamura",
     Havana = "Havana",
     Hollywood = "Hollywood",
@@ -15,9 +19,12 @@ export enum GameMap {
     Junkertown = "Junkertown",
     KingsRow = "King's Row",
     LijiangTower = "Lijiang Tower",
+    Midtown = "Midtown",
     Nepal = "Nepal",
+    NewQueenStreet = "New Queen Street",
     Numbani = "Numbani",
     Oasis = "Oasis",
+    Paraiso = "Paraíso",
     Paris = "Paris",
     Rialto = "Rialto",
     Route66 = "Route 66",
@@ -64,6 +71,15 @@ export function diffToOutcome(diff: number): Outcome {
     }
 })
 @pre<Game>("save", async function () {
+    // infer outcome
+    if (getGameVersion(this) > 1) {
+        if (!this.outcome) {
+            throw new mongoose.Error("Cannot infer outcome in Overwatch 2")
+        }
+        // no SR in OW2
+        this.sr = undefined
+        return
+    }
     if (!this.sr) {
         if (!this.outcome) {
             throw new mongoose.Error("Cannot infer outcome of a placement game")

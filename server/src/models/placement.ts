@@ -1,4 +1,4 @@
-import { getModelForClass, index, mongoose, pre, prop, ReturnModelType } from "@typegoose/typegoose"
+import { getModelForClass, mongoose, pre, prop, ReturnModelType } from "@typegoose/typegoose"
 import { Event } from "./event"
 import GameModel from "./game"
 
@@ -11,7 +11,6 @@ import GameModel from "./game"
     // set date right after last placement game
     this.date = new Date(lastUnranked.date.getTime() + 1)
 })
-@index({ user: 1, season: 1, role: 1 }, { unique: true })
 export class Placement extends Event {
     @prop({ required: true, min: 0, max: 5000, validate: { validator: Number.isInteger } })
     public sr!: number

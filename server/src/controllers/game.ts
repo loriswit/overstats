@@ -3,6 +3,7 @@ import GameModel, { Game } from "../models/game"
 import PlacementModel from "../models/placement"
 import { Season } from "../models/event"
 import { isDbError } from "../utils/is-db-error"
+import { getGameVersion } from "../utils/game-version"
 
 export default class GameController {
 
@@ -32,8 +33,8 @@ export default class GameController {
         try {
             await game.save()
 
-            // replace existing placement event if any
-            if (!game.sr) {
+            // replace existing placement event if any (OW1 only)
+            if (getGameVersion(game) === 1 && !game.sr) {
                 const old = await PlacementModel.findByEventAndDelete(game)
                 if (old) {
                     const placement = new PlacementModel({
