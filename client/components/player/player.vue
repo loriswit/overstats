@@ -6,13 +6,13 @@
         .count(v-if="!loading") {{ games.length }} game{{ games.length === 1 ? "" : "s" }}
       .actions
         button(v-if="editable && season" @click="addGameDialog = true") Add game
-        select(v-model="season" @change="fetchGames")
+        select(v-model="season" @change="fetchGames" key="season")
           option(value="") All seasons
           option(v-for="s in seasons" :value="s") {{ s }}
-        select(v-if="multiQueue && view === View.History" v-model="queueMode")
+        select(v-if="multiQueue && view === View.History" v-model="queueMode" key="queue")
           option(value="rq") Role Queue
           option(value="oq") Open Queue
-        select(v-if="games.length" v-model="view")
+        select(v-if="games.length" v-model="view" key="view")
           option(:value="View.History") History
           option(:value="View.Chart") Progression
           option(:value="View.WinRate") Win rates
@@ -148,6 +148,9 @@ export default Vue.extend({
       return roles
     },
     placementRequired () {
+      if (this.loading) {
+        return false
+      }
       // open placement dialog when enough placement games found
       for (const [role, required] of [["Tank", 5], ["Damage", 5], ["Support", 5], ["Any", 10]]) {
         if (this.gameVersion === 1) {
@@ -192,6 +195,8 @@ export default Vue.extend({
         if (this.games.length) {
           const latestGame = this.latestEvent(this.games)
           this.queueMode = latestGame.role === "Any" ? "oq" : "rq"
+        } else {
+          this.view = View.History
         }
       } finally {
         this.loading = false
