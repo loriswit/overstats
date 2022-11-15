@@ -37,7 +37,7 @@
           button.red(v-if="update" type="button" @click="remove") Delete
           button(type="submit") Save
 
-        template(v-if="update == null")
+        template(v-if="update == null && version === 1")
           label.hidden(for="date") Date
           select#type(v-model="type")
             option(v-for="t in types" :value="t") {{ t }}
