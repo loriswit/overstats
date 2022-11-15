@@ -76,9 +76,21 @@ export default Vue.extend({
   },
   methods: {
     updateChart (this: any) {
-      const games = this.events
-        .filter((g: Event) => g.sr)
+      let games = [...this.events]
         .sort((a: Event, b: Event) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+      // assign previous skill rating to placement games
+      const sr = {}
+      for (const g of games) {
+        if (g.sr) {
+          sr[g.role] = g.sr
+        } else if (sr[g.role]) {
+          g.sr = sr[g.role]
+        }
+      }
+
+      // only keep games with a skill rating
+      games = games.filter((g: Event) => g.sr)
 
       for (const dataset of this.datasets) {
         const role = dataset.label === "Open Queue" ? "Any" : dataset.label
