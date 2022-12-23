@@ -15,7 +15,7 @@ npm run dev
 
 ## Client
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/loriswit/overstats/Client%20CI)](https://github.com/loriswit/overstats/actions?query=workflow%3A%22Client+CI%22)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/loriswit/overstats/client.yml?branch=main)](https://github.com/loriswit/overstats/actions?query=workflow%3A%22Client+CI%22)
 [![GitHub deployments](https://img.shields.io/github/deployments/loriswit/overstats/Production?label=deploy)](https://overstats.now.sh)
 
 ### Features
@@ -48,7 +48,7 @@ The following scripts are available in the client workspace:
 
 ## Server
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/loriswit/overstats/Server%20CI)](https://github.com/loriswit/overstats/actions?query=workflow%3A%22Server+CI%22)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/loriswit/overstats/server.yml?branch=main)](https://github.com/loriswit/overstats/actions?query=workflow%3A%22Server+CI%22)
 [![GitHub deployments](https://img.shields.io/github/deployments/loriswit/overstats/overstats-server?label=deploy)](https://overstats-server.herokuapp.com)
 [![Codecov](https://img.shields.io/codecov/c/gh/loriswit/overstats)](https://codecov.io/gh/loriswit/overstats)
 
