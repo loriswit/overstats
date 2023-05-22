@@ -121,12 +121,14 @@ export default Vue.extend({
         "Volskaya Industries"
       ],
       ow2: [
+        "Antarctic Peninsula",
         "Circuit Royal",
         "Colosseo",
         "Esperança",
         "Midtown",
         "New Queen Street",
-        "Paraíso"
+        "Paraíso",
+        "Shambali Monastery"
       ]
     },
     map: "",

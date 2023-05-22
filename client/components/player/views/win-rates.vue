@@ -49,11 +49,11 @@ export default Vue.extend({
     }, {
       title: "Control maps",
       field: "map",
-      values: ["Busan", "Ilios", "Lijiang Tower", "Nepal", "Oasis"]
+      values: ["Antarctic Peninsula", "Busan", "Ilios", "Lijiang Tower", "Nepal", "Oasis"]
     }, {
       title: "Escort maps",
       field: "map",
-      values: ["Circuit Royal", "Dorado", "Havana", "Junkertown", "Rialto", "Route 66", "Watchpoint: Gibraltar"]
+      values: ["Circuit Royal", "Dorado", "Havana", "Junkertown", "Rialto", "Route 66", "Shambali Monastery", "Watchpoint: Gibraltar"]
     }, {
       title: "Hybrid maps",
       field: "map",

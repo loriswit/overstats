@@ -4,6 +4,7 @@ import PlacementModel from "./placement"
 import { getGameVersion } from "../utils/game-version"
 
 export enum GameMap {
+    AntarcticPeninsula = "Antarctic Peninsula",
     BlizzardWorld = "Blizzard World",
     Busan = "Busan",
     CircuitRoyal = "Circuit Royal",
@@ -28,6 +29,7 @@ export enum GameMap {
     Paris = "Paris",
     Rialto = "Rialto",
     Route66 = "Route 66",
+    ShambaliMonastery = "Shambali Monastery",
     TempleOfAnubis = "Temple of Anubis",
     VolskayaIndustries = "Volskaya Industries",
     WatchpointGibraltar = "Watchpoint: Gibraltar"
