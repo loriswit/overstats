@@ -12,7 +12,7 @@
     "test:cov": "npm run test -- --coverage"
   },
   "dependencies": {
-    "@koa/cors": "^3.1.0",
+    "@koa/cors": "^5.0.0",
     "@typegoose/typegoose": "^9.2.0",
     "basic-auth": "^2.0.1",
     "bcrypt": "^5.0.0",
